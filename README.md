@@ -4,6 +4,8 @@
 
 *KI-generierter Designentwurf für Gehäuse und Oberfläche; keine Aufnahme des aktuellen Prototyps.*
 
+## ZenTimer - Die Idee
+
 ZenTimer ist ein kleiner Meditationstimer für einen festen Platz im Alltag.
 Man stellt die Zeit ein, beginnt die Sitzung und lässt den Kreis langsam
 schließen. Die Anzeige bleibt ruhig: gut lesbare Ziffern, ein warmer
