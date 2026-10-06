@@ -2,26 +2,47 @@
 
 ![ZenTimer-Designentwurf: Holzgehäuse mit Display, Fortschrittskreis und Restzeit](docs/images/zentimer-design.png)
 
-*Designentwurf für Gehäuse und Oberfläche.*
+*KI-generierter Designentwurf für Gehäuse und Oberfläche; keine Aufnahme des aktuellen Prototyps.*
 
-Kleine modulare Meditationstimer-Firmware für den Seeed XIAO nRF52840.
-Branch: `feature/timer-core`. LCD und Touch wurden auf der Hardware getestet.
-Die aktuelle Version mit Kreis, Wischgesten und Abschlussblinken wurde am
-06.10.2026 erfolgreich auf das XIAO geflasht. Die detaillierten Abnahmeprüfungen
-stehen im [Hardware-Dokument](docs/hardware-demo.md#lokale-prüfung-und-abnahme-am-gerät).
+ZenTimer ist ein kleiner Meditationstimer für einen festen Platz im Alltag.
+Man stellt die Zeit ein, beginnt die Sitzung und lässt den Kreis langsam
+schließen. Die Anzeige bleibt ruhig: gut lesbare Ziffern, ein warmer
+orangefarbener Bogen und dunkle Steine im Hintergrund.
 
-Die [bebilderte Anschlussanleitung für das Waveshare-Touchdisplay](docs/wiring.md#bebilderte-anschlussanleitung)
-zeigt Steckerorientierung, Signalzuordnung und die stromlose Prüfung.
+Die Idee ist ein Gerät, das sich selbstverständlich in ein natürliches Stück
+Holz einfügt. Die Technik soll sich zurücknehmen und den Beginn und das Ende
+der Meditation begleiten. Der Entwurf oben zeigt diese Richtung; das Projekt
+wächst derzeit aus einem funktionierenden Hardware-Prototypen heraus.
 
-Der aktuelle [20-Minuten-Präsentations-Build](docs/hardware-demo.md) verwendet
-Hardware-SPI mit zunächst 8 MHz und Software-SPI-Rückfalloption, Touch und einen orangefarbenen Kreis
-ab 6 Uhr. Im Zustand Ready lässt sich
-die Dauer über dezente graue Minus-/Plus-Symbole zwischen 1 und 60 Minuten
-einstellen. Große seitliche Touchflächen reagieren schon beim Aufsetzen.
-Ein Doppeltipp bricht eine laufende oder pausierte Sitzung ab.
-Roboto-Ziffern und ein breiterer Fortschrittsbogen über einem verblasst
-orangefarbenen Ring über einem dezenten Steinmotiv bilden die Anzeige. Dort stehen Build-Befehle, Farbtest,
-Software-SPI-Fallback und die noch nötigen Hardwareprüfungen.
+> Der Timer soll nicht bedient werden. Man wendet sich ihm zu, beginnt – und
+> danach tritt er wieder zurück.
+
+Langfristig soll eine bewusste Annäherung die Sitzung vorbereiten. Wenn die
+Hände wieder entfernt werden, erklingt ein Anfangsgong; ein Schlussgong
+beendet die Meditation. Touch bleibt als einfache Möglichkeit für Einrichtung
+und direkte Bedienung erhalten. Annäherungserkennung und Audio sind noch
+geplante Schritte.
+
+Heute läuft ZenTimer auf einem Seeed XIAO nRF52840 mit dem Waveshare
+1,69-Zoll-Touchdisplay. Die Startdauer beträgt 20 Minuten. In Bereitschaft
+ändern die grauen Minus-/Plus-Symbole die Dauer zwischen 1 und 60 Minuten;
+ein Tap in der Mitte startet. Weitere einzelne Taps pausieren und setzen
+fort, ein Doppeltipp bricht ab. Am Ende steht `00:00` im geschlossenen Kreis,
+und die Hintergrundbeleuchtung blinkt dreimal.
+
+Die aktuelle Firmware mit Roboto-Ziffern, Steinmotiv und dem dezenten
+Hintergrundring wurde am 07.10.2026 erfolgreich geflasht. Sie nutzt
+Hardware-SPI mit 8 MHz; die bewährte Software-SPI-Ansteuerung bleibt als
+Rückfalloption erhalten. Timerlogik, Anzeige und Eingabe sind getrennt, damit
+sich die Gestaltung und die spätere Hardware weiterentwickeln können.
+Ein Mac-Simulator verwendet denselben C++-Timerkern für die Entwicklung ohne
+angeschlossenes Gerät.
+
+Die [bebilderte Anschlussanleitung](docs/wiring.md#bebilderte-anschlussanleitung)
+beschreibt Steckerorientierung, Signalzuordnung und die stromlose Prüfung.
+Im [Hardware-Dokument](docs/hardware-demo.md) stehen Bedienung, Build-Befehle,
+Farbtest, Rückfalloption und die noch zu dokumentierenden Abnahmeprüfungen.
+Der aktuelle Entwicklungsbranch ist `feature/timer-core`.
 
 ## Aufbau und Verhalten
 
@@ -180,8 +201,9 @@ nicht dokumentiert. Proximity-Sensor
 und LiPo sind vorhanden; genaue Varianten sind noch offen. Audio, Sensorsteuerung,
 Sleep und Synchronisierung sind noch nicht implementiert.
 
-Zieloberfläche: langsam schließender Fortschrittskreis, zuschaltbare Restzeit
-und dezentes statisches Steinmotiv. Geplant sind Timefully-Profilimport,
+Der Fortschrittskreis und das statische Steinmotiv sind bereits umgesetzt.
+Als nächste gestalterische Schritte sind eine zuschaltbare Restzeit und der
+handgemalte Ensō vorgesehen. Geplant sind Timefully-Profilimport,
 Zeitanpassung am Gerät und Rückübertragung von Sitzungen. Automatische
 Synchronisierung ist ein Ziel; eine verfügbare Schnittstelle ist bislang nicht
 nachgewiesen. Es wird keine API angenommen.
