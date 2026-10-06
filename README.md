@@ -1,5 +1,9 @@
 # ZenTimer
 
+![ZenTimer-Designentwurf: Holzgehäuse mit Display, Fortschrittskreis und Restzeit](docs/images/zentimer-design.png)
+
+*Designentwurf für Gehäuse und Oberfläche.*
+
 Kleine modulare Meditationstimer-Firmware für den Seeed XIAO nRF52840.
 Branch: `feature/timer-core`. Der bisherige Blinktest wurde auf der Hardware
 getestet; diese Timer-Firmware muss nach einem bewussten Upload noch dort
