@@ -47,7 +47,8 @@ void loop() {
   console.update(now);
   const bool connected = bool(Serial);
   if (connected && !wasSerialConnected) {
-    Serial.println("LCD: Software-SPI, 280x240 logisch, Y-Offset 20.");
+    Serial.println(lcd.hardwareTransport() ? "LCD: Hardware-SPI 8 MHz, 280x240, Y-Offset 20." :
+                                            "LCD: Software-SPI, 280x240, Y-Offset 20.");
     Serial.println(touchReady ? "Touch 0x15: konfiguriert (IRQ D0, RST D1)." :
                                "Touch nicht bereit; Serial bleibt nutzbar.");
   }

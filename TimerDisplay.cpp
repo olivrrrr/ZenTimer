@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "hardware/TimerFont.h"
 namespace {
 constexpr uint16_t CircleSteps = 180; // two-degree increments
 constexpr uint16_t ControlGrey = 0x738E;
@@ -42,27 +43,25 @@ void TimerDisplay::stroke(float x0, float y0, float x1, float y1, float thicknes
   }
 }
 void TimerDisplay::timeText(const char* value, int16_t maxWidth) {
-  const uint8_t masks[] = {0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F};
-  const float segments[7][4] = {{5,2,23,2},{26,6,26,22},{26,30,26,46},
-      {5,50,23,50},{2,30,2,46},{2,6,2,22},{5,26,23,26}};
-  float length = -6;
-  for (const char* p=value; *p; ++p) length += (*p==':' ? 8 : 28)+6;
-  const float scale = fminf(1.0f,maxWidth/length);
-  float x = (geometry_.width()-length*scale)/2;
-  const float y = (geometry_.height()-54*scale)/2;
+  int length = -TimerFont::Gap;
+  for (const char* p=value; *p; ++p)
+    length += (*p==':' ? TimerFont::ColonWidth : TimerFont::DigitWidth)+TimerFont::Gap;
+  const float scale = fminf(1.0f,float(maxWidth)/length);
+  float pen = (geometry_.width()-length*scale)/2;
+  const int yStart = (geometry_.height()-TimerFont::Height*scale)/2;
   for (; *value; ++value) {
-    if (*value==':') {
-      stroke(x+4*scale,y+18*scale,x+4*scale,y+18*scale,4*scale,0xFFFF);
-      stroke(x+4*scale,y+36*scale,x+4*scale,y+36*scale,4*scale,0xFFFF);
-      x += 14*scale;
-    } else {
-      if (*value>='0' && *value<='9') for (uint8_t i=0;i<7;++i) {
-        if (!(masks[*value-'0'] & (1<<i))) continue;
-        stroke(x+segments[i][0]*scale,y+segments[i][1]*scale,
-               x+segments[i][2]*scale,y+segments[i][3]*scale,3.2f*scale,0xFFFF);
+    const int glyph = *value==':' ? 10 : *value-'0';
+    if (glyph<0 || glyph>10) continue;
+    const int width = glyph==10 ? TimerFont::ColonWidth : TimerFont::DigitWidth;
+    const int xStart = lroundf(pen);
+    for (int y=0; y<int(TimerFont::Height*scale); ++y)
+      for (int x=0; x<int(width*scale); ++x) {
+        const int index = int(y/scale)*width+int(x/scale);
+        const uint8_t packed = TimerFont::Coverage[TimerFont::Offsets[glyph]+index/2];
+        const uint8_t alpha = index&1 ? packed&15 : packed>>4;
+        if (alpha) setPixel(xStart+x,yStart+y,shade(0xFFFF,alpha/15.0f));
       }
-      x += 34*scale;
-    }
+    pen += (width+TimerFont::Gap)*scale;
   }
 }
 void TimerDisplay::controls(bool visible) {
@@ -87,21 +86,23 @@ bool TimerDisplay::circle(uint16_t steps, Rect& changed) {
   constexpr float Tau = 6.28318530718f;
   const float sweep = float(steps)*Tau/CircleSteps;
   const float endX = -radius*sinf(sweep), endY = radius*cosf(sweep);
-  for (int16_t dy=-radius-3; dy<=radius+3; ++dy) for (int16_t dx=-radius-3; dx<=radius+3; ++dx) {
+  for (int16_t dy=-radius-5; dy<=radius+5; ++dy) for (int16_t dx=-radius-5; dx<=radius+5; ++dx) {
     const float distance = sqrtf(float(dx*dx+dy*dy));
-    if (fabsf(distance-radius)>3) continue;
+    if (fabsf(distance-radius)>5) continue;
     float coverage = 0;
+    const float trackCoverage = clampCoverage(3.5f-fabsf(distance-radius));
     if (steps) {
       float angle = atan2f(-dx,dy);
       if (angle<0) angle+=Tau;
-      if (steps==CircleSteps || angle<=sweep) coverage=clampCoverage(2.0f-fabsf(distance-radius));
+      if (steps==CircleSteps || angle<=sweep) coverage=clampCoverage(3.5f-fabsf(distance-radius));
       if (steps<CircleSteps) {
         const float startDistance=sqrtf(float(dx*dx+(dy-radius)*(dy-radius)));
         const float endDistance=sqrtf((dx-endX)*(dx-endX)+(dy-endY)*(dy-endY));
-        coverage=fmaxf(coverage,clampCoverage(2.0f-fminf(startDistance,endDistance)));
+        coverage=fmaxf(coverage,clampCoverage(3.5f-fminf(startDistance,endDistance)));
       }
     }
-    const uint16_t color=shade(Orange,coverage);
+    const float brightness = 0.18f*trackCoverage + 0.82f*coverage;
+    const uint16_t color=shade(Orange,brightness);
     const int16_t x=cx+dx,y=cy+dy;
     if (pixel(x,y)==color) continue;
     setPixel(x,y,color);

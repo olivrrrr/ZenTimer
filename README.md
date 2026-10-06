@@ -14,11 +14,13 @@ Die [bebilderte Anschlussanleitung für das Waveshare-Touchdisplay](docs/wiring.
 zeigt Steckerorientierung, Signalzuordnung und die stromlose Prüfung.
 
 Der aktuelle [2-Minuten-Präsentations-Build](docs/hardware-demo.md) verwendet
-die getestete Software-SPI-Ansteuerung, Touch und einen orangefarbenen Kreis
+Hardware-SPI mit zunächst 8 MHz und Software-SPI-Rückfalloption, Touch und einen orangefarbenen Kreis
 ab 6 Uhr. Im Zustand Ready lässt sich
 die Dauer über dezente graue Minus-/Plus-Symbole zwischen 1 und 60 Minuten
 einstellen. Große seitliche Touchflächen reagieren schon beim Aufsetzen.
-Dort stehen Build-Befehle, Farbtest und die noch nötigen Hardwareprüfungen.
+Roboto-Ziffern und ein breiterer Fortschrittsbogen über einem verblasst
+orangefarbenen Ring bilden die Anzeige. Dort stehen Build-Befehle, Farbtest,
+Software-SPI-Fallback und die noch nötigen Hardwareprüfungen.
 
 ## Aufbau und Verhalten
 

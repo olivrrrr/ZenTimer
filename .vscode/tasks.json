@@ -88,6 +88,27 @@
         }
       },
       "problemMatcher": "$gcc"
+    },
+    {
+      "label": "ZenTimer: Software-SPI Fallback Build",
+      "type": "shell",
+      "command": "arduino-cli",
+      "args": [
+        "compile",
+        "--fqbn",
+        "Seeeduino:nrf52:xiaonRF52840Sense",
+        "--build-path",
+        "${workspaceFolder}/build/software-spi",
+        "--build-property",
+        "compiler.cpp.extra_flags=-DZENTIMER_SOFTWARE_SPI=1",
+        "${workspaceFolder}"
+      ],
+      "options": {
+        "env": {
+          "PATH": "${env:HOME}/.local/bin:${env:PATH}"
+        }
+      },
+      "problemMatcher": "$gcc"
     }
   ],
   "inputs": [

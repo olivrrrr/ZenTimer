@@ -3,16 +3,17 @@
 Branch `feature/timer-core`. Der erste integrierte Build wurde auf das Gerät geladen und vom Nutzer
 getestet. LCD, CST816S-Touch und kontinuierliche Drag-Koordinaten sind laut
 neuem Hardware-Handoff bestätigt. **Die hier dokumentierte Folgeversion mit
-Kreis, Minus/Plus und Abschlussblinken ist kompiliert, lokal getestet und am
+Roboto-Ziffern, breitem Kreis, Minus/Plus und Abschlussblinken ist kompiliert, lokal getestet und am
 06.10.2026 auf `/dev/cu.usbmodem2401` geflasht. Der Uploader bestätigte
-„Device programmed.“ Auch die aktuelle Minus-/Plus-Version wurde erfolgreich auf diesen Port
-geflasht. Die vollständige Funktionsabnahme ist noch nicht protokolliert.** Der vorhandene `Displaytest/Displaytest.ino`
+„Device programmed.“ Auch die aktuelle Version mit Roboto, breiterem Ring und 8-MHz-SPI wurde
+erfolgreich auf diesen Port geflasht. Der serielle Monitor bestätigte
+„LCD: Hardware-SPI 8 MHz“ und den konfigurierten Touchcontroller. Die vollständige Funktionsabnahme ist noch nicht protokolliert.** Der vorhandene `Displaytest/Displaytest.ino`
 bleibt unverändert; der Mac-Simulator verwendet weiterhin denselben Timerkern.
 
 ![Ältere gerenderte Vorschau des Kreislayouts nach einer Minute](images/hardware-ui-preview.png)
 
 *Ältere Vorschau aus dem C++-Renderingtest, kein Hardwarefoto. Die aktuelle
-Version verwendet weichere Ziffern und einen geglätteten Bogen; in Ready
+Version verwendet Roboto-Ziffern und einen breiteren geglätteten Bogen; in Ready
 kommen graue Minus-/Plus-Symbole hinzu. Für diese Änderung wurden auf Wunsch
 keine lokalen Tests oder neuen Vorschau-Renderings ausgeführt.*
 
@@ -39,10 +40,12 @@ Bogen startet unten bei 6 Uhr und wächst im Uhrzeigersinn: unten → links →
 oben → rechts → unten. Bei 50 % ist die linke Hälfte sichtbar, am Ende der
 Kreis geschlossen. Er zeigt verstrichene Meditationszeit; Pause zählt nicht
 mit. Der Bogen wird in 2°-Schritten aktualisiert, mit weichen Kanten und runden
-Bogenenden. Die Zeit verwendet abgerundete, geglättete Segmentziffern. Die weißen Ziffern bleiben
+Bogenenden. Die Zeit verwendet geglättete Roboto-Ziffern mit gleich breiten Ziffernfeldern. Die weißen Ziffern bleiben
 mit Abstand innerhalb des Kreises. Auf dem aktuellen logischen 280 × 240
 Bild beträgt der Radius der Strichmitte 104 Pixel, die Strichbreite ungefähr
-3 Pixel mit geglätteten Randpixeln. Der Orangeton ist etwas wärmer.
+6 Pixel mit geglätteten Randpixeln, also etwa 3 Pixel breiter als zuvor.
+Ein vollständiger Ring in verblasstem Orange (18 % Helligkeit) liegt dauerhaft
+unter dem hellen Fortschrittsbogen; er ist auch in Ready sichtbar. Der Orangeton ist etwas wärmer.
 Dies ist ein geometrischer Zwischenstand, kein nachgezeichneter Ensō.
 
 `TimerCore::remainingSeconds()` rundet unverändert auf: Bei 120 Sekunden bleibt
@@ -66,22 +69,29 @@ kein `delay()` und keine TimerCore-Änderung.
   einen späteren Sensor.
 - `TimerDisplay` rendert Zeit und Fortschrittskreis in einen nativen
   RGB565-Framebuffer (134400 Byte) und verwendet nur `DisplayDriver`.
-- `St7789SoftwareSpi` übernimmt Bitfolge, 1-µs-Halbzyklen, Resetwartezeiten und
-  Minimalinitialisierung aus dem bestätigten `Displaytest`.
+- `St7789SoftwareSpi` behält seinen bisherigen Dateinamen, unterstützt jetzt
+  aber Hardware-SPI mit 8 MHz und einen Software-SPI-Fallback. Resetwartezeiten
+  und Minimalinitialisierung bleiben aus dem bestätigten `Displaytest` erhalten.
 - `TouchInput` liest CST816S-Kontakte über Wire und übergibt sie an
   `TouchGesture`. Diese gibt genau eine semantische Aktion beim Loslassen aus.
   Die ISR setzt nur ein Flag; I²C findet in der Hauptschleife statt.
 
 Die LCD-Initialisierung bleibt bei `01`, `11`, `3A=55`, `36=00`, `13`, `21`,
 `29`. Fenster verwenden `2A`, `2B` mit Y-Offset +20 und `2C`. Keine zusätzlichen
-Prospector-Register, keine Adafruit-ST7789-Bibliothek und kein Hardware-SPI.
+Prospector-Register und keine Adafruit-ST7789-Bibliothek. Geändert wurde der
+Transport auf SPIM3/EasyDMA mit 8 MHz, Modus 0 und MSB zuerst. MISO und
+automatisches CS sind explizit deaktiviert; D9 bleibt manuell gesteuertes CS.
+RGB565 wird in RAM-Blöcken ausdrücklich als High-Byte/Low-Byte serialisiert.
+EasyDMA-Aufrufe sind synchron; spätestens nach 96 Pixeln kehrt die Hauptschleife
+zur Touch- und Timerverarbeitung zurück.
 
 Nach dem vollständigen Erstaufbau werden nur geänderte Zeit- und Bogenbereiche
 als zusammenhängende Rechtecke übertragen. Der vorhandene Framebuffer bleibt
 für die zentrale Drehung und konsistente Regioneninhalte erhalten. Die Ursache
 der bisher beobachteten Artefakte ist weiterhin ungeklärt; weder lokale
 Schreibzugriffe noch ein anderer Treiber gelten dadurch als bewiesen gut oder
-schlecht. Es wurde dafür kein weiterer Buffer oder neuer Treiber eingeführt.
+schlecht. Es wurde dafür kein weiterer Buffer für die Artefakte eingeführt. Der schnellere Transport ist ein separater,
+bewusst vorgenommener Schritt; er beweist keine Ursache der alten Artefakte.
 Während einer Region bleibt CS LOW; pro Hauptschleife werden höchstens
 96 Pixel gesendet. Zwischen diesen Paketen laufen Timer, Serial und Touch.
 Der Framebuffer wird während der Übertragung nicht verändert. Neue sichtbare
@@ -140,8 +150,8 @@ beim Loslassen mit der neuen IRQ-Einstellung zuverlässig geliefert werden.
 
 ## Kompilieren und unabhängiger Farbtest
 
-Keine neuen Bibliotheken erforderlich: Seeeduino:nrf52 1.1.13 liefert Arduino,
-TinyUSB und Wire. Wie bisher muss `~/.local/bin` für Python im PATH sein.
+Keine neuen Firmwarebibliotheken erforderlich: Seeeduino:nrf52 1.1.13 liefert
+Arduino, TinyUSB, Wire und nrfx/SPIM. Die Ziffernmasken liegen im Flash. Wie bisher muss `~/.local/bin` für Python im PATH sein.
 
 ```sh
 PATH="$HOME/.local/bin:$PATH" arduino-cli compile \
@@ -185,12 +195,53 @@ zusätzlich das vollständige Abschlussbild vor Blinkbeginn, genau drei
 OFF/ON-Paare, unveränderte Pixel während des Blinkens, kein erneutes Starten
 in Finished und Abbruch der Blinkfolge beim Reset.
 
-Prüfergebnis der vorherigen Kreis-/Swipe-Version: alle vier C++-Tests bestanden,
-auch Firmware und Farbtest bauten erfolgreich. Aktueller Minus-/Plus-Build:
-63964 Byte Flash / 142216 Byte RAM; Arduino-Kompilierung erfolgreich. Lokale
-Tests wurden für diese Änderung auf ausdrücklichen Wunsch nicht ausgeführt;
-die bestehenden Test-Erwartungen sind für eine spätere Ausführung angepasst. Das sind statische Build-Angaben,
-keine gemessene Laufzeitreserve. Die ST7789-Minimalinitialisierung ist unverändert.
+Die bisherigen Testergebnisse beziehen sich auf frühere UI-Stände. Für die
+aktuelle Änderung werden auf ausdrücklichen Wunsch keine lokalen Unit-Tests
+oder Renderingtests ausgeführt; geprüft wird die Arduino-Kompilierung für den
+normalen Build und die Software-SPI-Rückfalloption. Beide bauen erfolgreich:
+8-MHz-Build 75896 Byte Flash / 142296 Byte RAM; Software-SPI-Build 75160 Byte
+Flash / 142296 Byte RAM. Neue Hardwarefunktionen
+werden dadurch nicht als am Gerät abgenommen behauptet.
+
+## Geschwindigkeit und Rückfalloption
+
+Hardware-SPI nutzt zunächst **8 MHz**, nicht 16/32 MHz. Ein Vollbild enthält
+134400 Byte; die reine Übertragung benötigt theoretisch rund 134 ms statt
+mindestens 2,15 s mit dem bisherigen Software-SPI. Renderzeit, Paket- und
+Schleifenaufwand kommen hinzu. Es werden keine gemessenen FPS behauptet.
+Die LCD-Initialisierung und der Y-Offset bleiben unverändert.
+[SPIM/EasyDMA-Dokumentation von Nordic](https://docs.nordicsemi.com/bundle/ps_nrf52840/page/spim.html).
+
+Bei fehlgeschlagener SPIM-Initialisierung wird Software-SPI verwendet. Im
+Serial-Monitor steht beim Verbinden, welcher Transport tatsächlich aktiv ist.
+Ein ausdrücklich erzwungener Fallback-Build behält die neue Oberfläche bei:
+
+```sh
+PATH="$HOME/.local/bin:$PATH" arduino-cli compile \
+  --fqbn Seeeduino:nrf52:xiaonRF52840Sense --build-path build/software-spi \
+  --build-property compiler.cpp.extra_flags=-DZENTIMER_SOFTWARE_SPI=1 .
+```
+
+VS Code: **ZenTimer: Software-SPI Fallback Build**. Der Build-Pfad ist vom
+normalen Build getrennt; ein Fallback-Upload muss dessen Artefakte verwenden.
+Der separate `Displaytest` bleibt zusätzlich unverändert als ursprüngliche
+Hardware-Referenz erhalten.
+
+## Schriftasset
+
+Roboto aus [Google Fonts](https://github.com/google/fonts/tree/main/ofl/roboto),
+Gewicht 350, wird mit vierfacher Auflösung gerastert und auf 4-Bit-Deckkraft
+reduziert. Die Firmware benötigt nur Ziffern und Doppelpunkt, ungefähr 11 KB
+Maskendaten im Flash. Sie berechnet keine geometrischen Ziffernstriche mehr.
+Schriftquelle und SIL-OFL-1.1-Lizenz liegen in `assets/fonts/`. Zum erneuten
+Erzeugen wird Python mit Pillow benötigt:
+
+```sh
+python3 tools/generate_timer_font.py
+```
+
+Das Skript aktualisiert `hardware/TimerFont.h`; es ist kein Unit-Test und
+wird zum normalen Firmware-Build nicht benötigt.
 
 Für die Abnahme der geflashten Version am Gerät prüfen:
 

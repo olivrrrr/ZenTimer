@@ -175,7 +175,9 @@ FQBN `Seeeduino:nrf52:xiaonRF52840Sense` bleibt vorerst bestehen.
 [variant.cpp](https://github.com/Seeed-Studio/Adafruit_nRF52_Arduino/blob/1.1.13/variants/Seeed_XIAO_nRF52840_Sense/variant.cpp).
 
 **Hinweis für einen späteren Wechsel zu Hardware-SPI:** Der aktuelle
-Software-SPI-Treiber initialisiert keinen MISO-Pin. Bei Hardware-SPI gilt: D9 ist der Standard-MISO-Pin des
+8-MHz-Hardwaretransport deaktiviert MISO ausdrücklich und lässt D9 als CS frei.
+Der Software-SPI-Fallback verwendet ebenfalls keinen MISO-Pin. Beim Verwenden
+der normalen Arduino-SPI-Initialisierung gilt: D9 ist der Standard-MISO-Pin des
 Arduino-Cores, hier aber LCD_CS. Das LCD benötigt keine MISO-Leitung.
 `SPI.begin()` richtet dennoch standardmäßig D9 als MISO ein; die spätere
 Initialisierung muss D9 anschließend korrekt als CS-Ausgang behandeln oder
