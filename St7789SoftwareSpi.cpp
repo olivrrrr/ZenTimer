@@ -90,5 +90,10 @@ void St7789SoftwareSpi::writePixels(const uint16_t* pixels, uint16_t count) {
 void St7789SoftwareSpi::endRegion() { digitalWrite(LcdCs, HIGH); }
 
 void St7789SoftwareSpi::setBacklight(bool enabled) {
-  digitalWrite(LcdBacklight, enabled ? HIGH : LOW);
+  lit_=enabled;
+  analogWrite(LcdBacklight, enabled ? uint16_t(brightness_)*255/100 : 0);
+}
+
+void St7789SoftwareSpi::setBrightness(uint8_t percent) {
+  brightness_=percent>100?100:percent; setBacklight(lit_);
 }

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "hardware/TimerFont.h"
+#include "hardware/MenuFont.h"
 #include "hardware/StoneBackground.h"
 namespace {
 constexpr uint16_t CircleSteps = 180; // two-degree increments
@@ -31,6 +32,7 @@ uint16_t TimerDisplay::pixel(int16_t x, int16_t y) const {
   return frame_[native.y * 240 + native.x];
 }
 uint16_t TimerDisplay::backgroundPixel(int16_t x, int16_t y) const {
+  if (!showStones_) return 0x0841;
   const int sx = x*StoneBackground::Width/geometry_.width();
   const int sy = y*StoneBackground::Height/geometry_.height();
   // Dim the photo for reliable contrast; the master asset remains unaltered.
@@ -169,7 +171,7 @@ void TimerDisplay::update(const TimerCore& timer, uint32_t now) {
     char value[12];
     snprintf(value,sizeof(value),"%02lu:%02lu",static_cast<unsigned long>(seconds/60),static_cast<unsigned long>(seconds%60));
     restoreBackground(timeArea);
-    timeText(value,maxTextWidth);
+    if (showTime_) timeText(value,maxTextWidth);
   }
   if (controlsChanged) controls(timer.state()==TimerCore::State::Ready);
   Rect arcArea = {};
@@ -212,4 +214,38 @@ void TimerDisplay::showColor(uint16_t color) {
   jobIndex_ = jobCount_ = 0; offset_ = 0;
   queue({0,0,geometry_.width(),geometry_.height()});
   first_ = true;
+}
+
+void TimerDisplay::setPreferences(bool time, bool stones, uint8_t brightness) {
+  if (time!=showTime_ || stones!=showStones_) first_=true;
+  showTime_=time; showStones_=stones; driver_.setBrightness(brightness);
+}
+void TimerDisplay::menuText(const char* text, int16_t x, int16_t y, uint16_t color) {
+  for (; *text; ++text) {
+    const uint8_t c=static_cast<uint8_t>(*text);
+    if (c<32 || c>126) continue;
+    const unsigned glyph=c-32, width=MenuFont::Widths[glyph];
+    if (x+int(width)>geometry_.width()-10) break;
+    for (unsigned dy=0;dy<24;++dy) for (unsigned dx=0;dx<width;++dx) {
+      const unsigned index=dy*width+dx;
+      const uint8_t packed=MenuFont::Coverage[MenuFont::Offsets[glyph]+index/2];
+      const uint8_t alpha=index&1?packed&15:packed>>4;
+      if (alpha) setPixel(x+dx,y+dy,blend(color,pixel(x+dx,y+dy),alpha/15.0f));
+    }
+    x+=width;
+  }
+}
+bool TimerDisplay::showMenu(const char* title, const char* const rows[4], const char* footer) {
+  if (busy()) return false;
+  blink_.cancel(); finishedObserved_=completionPending_=false;
+  fill({0,0,geometry_.width(),geometry_.height()},0x0841);
+  menuText(title,12,8,Orange);
+  for (unsigned i=0;i<4;++i) {
+    fill({8,int16_t(42+i*38),int16_t(geometry_.width()-16),36},0x18C3);
+    menuText(rows[i],14,48+i*38,0xDEFB);
+  }
+  menuText(footer,22,208,0x9CF3);
+  jobIndex_=jobCount_=0; offset_=0;
+  queue({0,0,geometry_.width(),geometry_.height()}); first_=true;
+  setLight(true); pump(); return true;
 }

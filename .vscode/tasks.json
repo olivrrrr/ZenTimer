@@ -109,6 +109,22 @@
         }
       },
       "problemMatcher": "$gcc"
+    },
+    {
+      "label": "ZenTimer: Sitzungen auslesen",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "${workspaceFolder}/tools/session_bridge.py",
+        "--port",
+        "${input:serialPort}",
+        "--output-dir",
+        "${workspaceFolder}/data/sessions"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
     }
   ],
   "inputs": [

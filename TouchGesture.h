@@ -33,6 +33,10 @@ class TouchGesture {
     }
     return newContact && valid && !invalid_ ? InputAction::TouchDown : InputAction::None;
   }
+  bool longPress(uint32_t now) {
+    if (!tracking_ || invalid_ || maxDistanceSquared_>14*14 || uint32_t(now-started_)<1000) return false;
+    invalid_=true; return true;
+  }
   void discard() { invalid_ = true; } // failed reads must not synthesize a release
   bool tracking() const { return tracking_; }
   ScreenGeometry::Point position() const { return last_; }

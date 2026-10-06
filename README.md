@@ -30,8 +30,10 @@ ein Tap in der Mitte startet. Weitere einzelne Taps pausieren und setzen
 fort, ein Doppeltipp bricht ab. Am Ende steht `00:00` im geschlossenen Kreis,
 und die Hintergrundbeleuchtung blinkt dreimal.
 
-Die aktuelle Firmware mit Roboto-Ziffern, Steinmotiv und dem dezenten
-Hintergrundring wurde am 07.10.2026 erfolgreich geflasht. Sie nutzt
+Die Firmware mit Roboto-Ziffern, Steinmotiv und dem dezenten
+Hintergrundring wurde am 07.10.2026 erfolgreich geflasht. Der neue Build ergänzt
+Gerätemenüs und dauerhafte Sitzungsablage; dessen Hardwareabnahme steht noch aus.
+Die Anzeige nutzt
 Hardware-SPI mit 8 MHz; die bewährte Software-SPI-Ansteuerung bleibt als
 Rückfalloption erhalten. Timerlogik, Anzeige und Eingabe sind getrennt, damit
 sich die Gestaltung und die spätere Hardware weiterentwickeln können.
@@ -44,10 +46,28 @@ Im [Hardware-Dokument](docs/hardware-demo.md) stehen Bedienung, Build-Befehle,
 Farbtest, Rückfalloption und die noch zu dokumentierenden Abnahmeprüfungen.
 Der aktuelle Entwicklungsbranch ist `feature/timer-core`.
 
+## Menüs und Sitzungshistorie
+
+In Bereitschaft die Mitte eine Sekunde halten: Das Menü bietet Dauer-Profile,
+Anzeigeoptionen, **Gespeicherte Sitzungen** und Daten/System. Restzeit und
+Steinbild lassen sich abschalten, die Helligkeit ist einstellbar. Einträge in
+der Historie zeigen aktive Dauer, geplante Zeit und Abschluss beziehungsweise
+Abbruch. Die Aufzeichnungen bleiben auch ohne Strom erhalten.
+
+Die [Anleitung zu Speicherung und Export](docs/sessions.md) erklärt die
+Bedienung, Uhrzeit ohne RTC und die Mac-Bridge. Sie archiviert Sitzungen lokal
+in SQLite und erzeugt eine Open-Sit-Datei für den manuellen Timefully-Import.
+Ein eigener Server-Upload ist optional konfigurierbar; es wird keine
+Timefully-Synchronisierungs-API vorausgesetzt. Bluetooth und Audio sind
+vorerst ausgespart.
+
 ## Aufbau und Verhalten
 
 - `TimerCore.h`: reine C++-Timerlogik ohne Arduino- oder I/O-Abhängigkeiten.
 - `SerialConsole.h/.cpp`: USB-Serial-Befehle und Statusausgabe.
+- `SessionJournal.h`, `SessionStore.h/.cpp`: prüfsummengesicherte Flash-Ablage.
+- `DeviceMenu.h/.cpp`: Geräte-Menüs und lesbare Sitzungshistorie.
+- `tools/session_bridge.py`: lokales Archiv, Open-Sit-Export und optionaler Upload.
 - `TimeSource.h`: austauschbare monotone Millisekundenquelle.
 - `ZenTimer.ino`: verbindet Timer, Serial, Anzeige und Touch mit einer
   `millis()`-Zeitquelle. Keine Wartezeit auf USB und keine blockierende
@@ -55,8 +75,8 @@ Der aktuelle Entwicklungsbranch ist `feature/timer-core`.
 
 Zustände: **bereit**, **läuft**, **pausiert**, **beendet**. Standarddauer auf dem
 Gerät: **20 Minuten** (1200 Sekunden), eingestellt in `ZenTimer.ino`. Der unveränderte Timerkern und
-Mac-Simulator starten weiterhin mit 10 Minuten. Die Dauer wird im RAM gehalten
-und nach einem Neustart zurückgesetzt.
+Mac-Simulator starten weiterhin mit 10 Minuten. Auf dem Gerät werden die zuletzt
+eingestellte Dauer und Anzeigeoptionen im externen Flash wiederhergestellt.
 Pausen zählen nicht zur Meditationsdauer. Der Timer läuft auch bei getrenntem
 Monitor weiter. `cancel` setzt ihn auf bereit mit der eingestellten vollen Dauer.
 Nach beendet beginnt `start` eine neue Sitzung mit derselben Dauer.
@@ -79,6 +99,11 @@ werden akzeptiert. Maximal 63 Zeichen pro Zeile; längere Zeilen werden verworfe
 | `cancel` | Aus jedem Zustand abbrechen/zurücksetzen |
 | `status` | Zustand, eingestellte Dauer und Restsekunden ausgeben |
 | `help` | Befehle anzeigen |
+| `menu` | Gerätemenü in Bereitschaft öffnen |
+| `sessions` | Letzte gespeicherte Sitzungen lesen |
+| `storage` / `info` | Speicher, Geräte-ID und Uhrzeit anzeigen |
+| `time <Unix-Sekunden>` | Kalenderzeit für diesen Gerätestart setzen |
+| `export` | Gespeicherte Sitzungen per USB ausgeben; Anleitung in [sessions.md](docs/sessions.md) |
 
 Beispiel: `duration 60`, `start`, `pause`, `status`, `resume`, `cancel`
 (jeweils eine eigene Zeile). Ungültige Befehle, Werte oder Übergänge erzeugen
@@ -199,11 +224,12 @@ Hardware-Handoff einzeln getestet. Der neue Präsentations-Build verbindet sie
 mit dem Timerkern und ist geflasht; die vollständige Hardwareabnahme ist noch
 nicht dokumentiert. Proximity-Sensor
 und LiPo sind vorhanden; genaue Varianten sind noch offen. Audio, Sensorsteuerung,
-Sleep und Synchronisierung sind noch nicht implementiert.
+Sleep und automatische Synchronisierung sind noch nicht implementiert.
+Lokale Sitzungsspeicherung und manueller Open-Sit-Export sind jetzt vorhanden.
 
 Der Fortschrittskreis und das statische Steinmotiv sind bereits umgesetzt.
-Als nächste gestalterische Schritte sind eine zuschaltbare Restzeit und der
-handgemalte Ensō vorgesehen. Geplant sind Timefully-Profilimport,
+Die Restzeit lässt sich im Gerätemenü zuschalten. Als weiterer
+gestalterischer Schritt ist ein handgemalter Ensō denkbar. Geplant sind Timefully-Profilimport,
 Zeitanpassung am Gerät und Rückübertragung von Sitzungen. Automatische
 Synchronisierung ist ein Ziel; eine verfügbare Schnittstelle ist bislang nicht
 nachgewiesen. Es wird keine API angenommen.

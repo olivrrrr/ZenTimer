@@ -10,6 +10,9 @@ class TimerDisplay {
   void update(const TimerCore& timer, uint32_t now);
   void pump();
   void showColor(uint16_t color);
+  void invalidate() { first_ = true; }
+  void setPreferences(bool time, bool stones, uint8_t brightness);
+  bool showMenu(const char* title, const char* const rows[4], const char* footer);
   bool busy() const { return jobIndex_ < jobCount_; }
   uint16_t pixel(int16_t x, int16_t y) const;
   static constexpr uint16_t Orange = 0xFC66;
@@ -18,6 +21,8 @@ class TimerDisplay {
   uint16_t backgroundPixel(int16_t x, int16_t y) const;
   void restoreBackground(Rect rect);
   void fill(Rect rect, uint16_t color);
+  void menuText(const char* text, int16_t x, int16_t y, uint16_t color);
+  bool showTime_ = true, showStones_ = true;
   void timeText(const char* text, int16_t maxWidth);
   void stroke(float x0, float y0, float x1, float y1, float thickness, uint16_t color);
   void controls(bool visible);

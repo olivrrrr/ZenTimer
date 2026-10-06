@@ -308,3 +308,18 @@ Für die Abnahme der geflashten Version am Gerät prüfen:
 Ensō, Gong, Proximity, Energiesparen, Synchronisierung und ein Hardwarewechsel
 bleiben spätere Schritte. D2 ist für einen möglichen Sensor-Interrupt frei;
 Audio benötigt anschließend eine bewusste Planung des knappen Pinbudgets.
+
+
+## Gerätemenüs und nichtflüchtige Speicherung
+
+Der neue Build ergänzt Profile, Anzeigeoptionen und **Gespeicherte Sitzungen**.
+Öffnen: in Bereitschaft die Mitte etwa eine Sekunde halten. Das Menü ist nur
+in Bereitschaft verfügbar; Tap und Doppeltipp im laufenden Timer bleiben erhalten.
+Die zuletzt eingestellte Dauer ersetzt beim nächsten Start den Demo-Standard,
+wenn ein gültiger Einstellungsdatensatz vorhanden ist.
+
+Der [Speicher- und Exportleitfaden](sessions.md) beschreibt QSPI-Journal,
+Stromverlustverhalten, fehlendes Kalenderdatum, USB-Befehle und Mac-Ablage.
+Diese Ergänzung ist kompiliert und softwareseitig geprüft; die Abnahme an der
+Hardware und der Import einer Bridge-Datei in Timefully stehen noch aus.
+Bluetooth und Audio sind nicht Bestandteil der Ergänzung.

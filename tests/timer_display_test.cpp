@@ -104,4 +104,12 @@ int main() {
   assert(timer.setDuration(86400));settle(); // longer Serial durations still fit inside the circle
   display.showColor(0xF800);drain(display);for(uint16_t p:driver.panel) assert(p==0xF800);
   settle();assert(display.pixel(0,0)==backgroundCorner);
+  const char* rows[]={"Profile","Anzeige","Gespeicherte Sitzungen","Daten / System"};
+  assert(display.showMenu("ZenTimer",rows,"Schliessen"));
+  assert(!display.showMenu("Do not mutate",rows,"Back")); // immutable while DMA jobs pending
+  drain(display); assert(driver.light);
+  display.invalidate(); settle(); assert(display.pixel(0,0)==backgroundCorner);
+  display.setPreferences(false,false,40); settle();
+  for(int y=95;y<145;++y) for(int x=70;x<210;++x) assert(display.pixel(x,y)==0x0841);
+  display.setPreferences(true,true,70); settle(); assert(display.pixel(0,0)==backgroundCorner);
 }

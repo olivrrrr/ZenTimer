@@ -6,6 +6,8 @@
 #include "TimerDisplay.h"
 #include "St7789SoftwareSpi.h"
 #include "TouchInput.h"
+#include "SessionStore.h"
+#include "DeviceMenu.h"
 #include "hardware/BoardConfig.h"
 
 #ifndef ZENTIMER_COLOR_TEST
@@ -23,6 +25,8 @@ ScreenGeometry geometry(BoardConfig::Rotation);
 St7789SoftwareSpi lcd;
 TimerDisplay display(lcd, geometry);
 TouchInput touch(geometry);
+SessionStore sessionStore(timer);
+DeviceMenu menu(timer,sessionStore,display);
 bool touchReady = false;
 bool wasSerialConnected = false;
 #if ZENTIMER_COLOR_TEST
@@ -35,7 +39,10 @@ uint32_t colorSince = 0;
 void setup() {
   Serial.begin(115200);
   timer.setDuration(1200); // demo default; TimerCore itself keeps its original default
+  sessionStore.begin(millis());
+  console.attachStore(sessionStore);
   lcd.begin();
+  display.setPreferences(sessionStore.preferences.time,sessionStore.preferences.stones,sessionStore.preferences.brightness);
   touchReady = touch.begin();
 #if ZENTIMER_COLOR_TEST
   display.showColor(testColors[0]);
@@ -44,7 +51,11 @@ void setup() {
 void loop() {
   const uint32_t now = millis();
   timer.update();
+  sessionStore.tick(now);
   console.update(now);
+  if (console.takeMenuRequest()) menu.show();
+  if (menu.open() && timer.state()!=TimerCore::State::Ready) menu.close();
+  sessionStore.exportNext();
   const bool connected = bool(Serial);
   if (connected && !wasSerialConnected) {
     Serial.println(lcd.hardwareTransport() ? "LCD: Hardware-SPI 8 MHz, 280x240, Y-Offset 20." :
@@ -53,7 +64,7 @@ void loop() {
                                "Touch nicht bereit; Serial bleibt nutzbar.");
   }
   wasSerialConnected = connected;
-  const InputAction action = touch.poll(now,timer.state());
+  const InputAction action = touch.poll(now,timer.state(),menu.open());
 #if ZENTIMER_COLOR_TEST
   (void)action;
   display.pump();
@@ -66,8 +77,13 @@ void loop() {
     }
   }
 #else
-  if (action != InputAction::None) {
+  if (action==InputAction::Menu) menu.show();
+  else if (menu.open()) {
+    if (action==InputAction::Tap) { const auto point=touch.lastPosition(); menu.tap(point.x,point.y,now); }
+  } else if (action != InputAction::None) {
+    sessionStore.beforeAction(now);
     applyTimerAction(timer,action);
+    sessionStore.afterAction(now);
     if (connected) {
       const auto point = touch.lastPosition();
       Serial.print(action == InputAction::DoubleTap ? "Double tap / cancel: x=" :
@@ -76,6 +92,6 @@ void loop() {
       Serial.print(" y="); Serial.println(point.y);
     }
   }
-  display.update(timer,now);
+  if (menu.open()) menu.render(); else display.update(timer,now);
 #endif
 }

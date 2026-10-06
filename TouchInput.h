@@ -6,7 +6,7 @@ class TouchInput {
  public:
   explicit TouchInput(const ScreenGeometry& geometry) : geometry_(geometry), gesture_(geometry) {}
   bool begin();
-  InputAction poll(uint32_t now, TimerCore::State state);
+  InputAction poll(uint32_t now, TimerCore::State state, bool menuOpen=false);
   ScreenGeometry::Point lastPosition() const { return gesture_.position(); }
  private:
   const ScreenGeometry& geometry_;

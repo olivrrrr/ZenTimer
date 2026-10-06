@@ -43,6 +43,14 @@ int main() {
   ScreenGeometry geometry; TouchGesture wrap(geometry);
   at(wrap,geometry,true,100,100,UINT32_MAX-100);
   assert(at(wrap,geometry,false,0,0,100)==InputAction::Tap);
+  TouchGesture held(geometry);
+  at(held,geometry,true,140,120,UINT32_MAX-500);
+  assert(!held.longPress(400));
+  assert(held.longPress(500)); // wrap-safe one-second hold
+  assert(!held.longPress(600)); // only once
+  assert(at(held,geometry,false,0,0,700)==InputAction::None); // release cannot start timer
+  at(held,geometry,true,140,120,2000); at(held,geometry,true,170,120,2100);
+  assert(!held.longPress(4000));
   ManualClock clock; TimerCore timer(clock); assert(timer.setDuration(120));
   applyTimerAction(timer,InputAction::IncreaseDuration);assert(timer.durationSeconds()==180);
   applyTimerAction(timer,InputAction::DecreaseDuration);assert(timer.durationSeconds()==120);

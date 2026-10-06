@@ -1,8 +1,10 @@
 #include "SerialConsole.h"
+#include "SessionStore.h"
 #include <string.h>
 void SerialConsole::printHelp() {
   Serial.println("ZenTimer: Befehle mit Enter abschliessen (115200 Baud).");
   Serial.println("duration <Sekunden> (1..86400), start, pause, resume, cancel, status, help");
+  Serial.println("menu, sessions, storage, info, export, time <Unix-Sekunden>");
 }
 void SerialConsole::printStatus() {
   const char* state = "bereit";
@@ -27,6 +29,9 @@ void SerialConsole::execute(uint32_t now) {
   bool ok = true;
   if (!strcmp(command, "help")) { printHelp(); return; }
   if (!strcmp(command, "status")) { printStatus(); return; }
+  if (!strcmp(command,"menu")) { menuRequested_=true; return; }
+  if (store_ && store_->command(command,now)) return;
+  if (store_) store_->beforeAction(now);
   if (!strcmp(command, "start")) ok = timer_.start();
   else if (!strcmp(command, "pause")) ok = timer_.pause();
   else if (!strcmp(command, "resume")) ok = timer_.resume();
@@ -46,6 +51,7 @@ void SerialConsole::execute(uint32_t now) {
     Serial.println("Unbekannter Befehl. 'help' zeigt die Befehle.");
     return;
   }
+  if (store_) store_->afterAction(now);
   if (!ok) Serial.println("Nicht moeglich: Zustand oder Dauer pruefen.");
   printStatus();
   reportedState_ = timer_.state();

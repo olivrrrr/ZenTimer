@@ -20,10 +20,10 @@ bool TouchInput::begin() {
   attachInterrupt(digitalPinToInterrupt(BoardConfig::TouchIrq), touchIsr, FALLING);
   return configured;
 }
-InputAction TouchInput::poll(uint32_t now, TimerCore::State state) {
-  const bool ready = state == TimerCore::State::Ready;
-  taps_.setContext(static_cast<uint8_t>(state),
-      state == TimerCore::State::Running || state == TimerCore::State::Paused);
+InputAction TouchInput::poll(uint32_t now, TimerCore::State state, bool menuOpen) {
+  const bool ready = state == TimerCore::State::Ready && !menuOpen;
+  taps_.setContext(menuOpen ? 255 : static_cast<uint8_t>(state),
+      !menuOpen && (state == TimerCore::State::Running || state == TimerCore::State::Paused));
   if (uint32_t(now-lastRead_) < 15) return taps_.flush(now);
   noInterrupts(); const bool pending = pendingIrq; pendingIrq = false; interrupts();
   if (!pending && !gesture_.tracking() && digitalRead(BoardConfig::TouchIrq) == HIGH)
@@ -48,6 +48,7 @@ InputAction TouchInput::poll(uint32_t now, TimerCore::State state) {
       return point.x < sideWidth ? InputAction::DecreaseDuration : InputAction::IncreaseDuration;
     }
   }
+  if (ready && gesture_.longPress(now)) return InputAction::Menu;
   if (event == InputAction::Tap) return taps_.tap(now,gesture_.position());
   return taps_.flush(now);
 }
