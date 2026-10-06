@@ -101,7 +101,7 @@ bool TimerDisplay::circle(uint16_t steps, Rect& changed) {
         coverage=fmaxf(coverage,clampCoverage(3.5f-fminf(startDistance,endDistance)));
       }
     }
-    const float brightness = 0.18f*trackCoverage + 0.82f*coverage;
+    const float brightness = 0.38f*trackCoverage + 0.62f*coverage;
     const uint16_t color=shade(Orange,brightness);
     const int16_t x=cx+dx,y=cy+dy;
     if (pixel(x,y)==color) continue;

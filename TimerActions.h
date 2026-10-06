@@ -13,6 +13,11 @@ inline void activateTimer(TimerCore& timer) {
   }
 }
 inline void applyTimerAction(TimerCore& timer, InputAction action) {
+  if (action == InputAction::DoubleTap) {
+    if (timer.state() == TimerCore::State::Running || timer.state() == TimerCore::State::Paused)
+      timer.cancel();
+    return;
+  }
   if (action == InputAction::Tap) { activateTimer(timer); return; }
   if (timer.state() != TimerCore::State::Ready ||
       (action != InputAction::SwipeUp && action != InputAction::SwipeDown &&

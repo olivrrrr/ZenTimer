@@ -26,8 +26,8 @@ Ready verschwinden beide. Zustandslabels und Menüs bleiben ausgeblendet.
 | Zustand | Bedienung |
 | --- | --- |
 | Ready | Links: −1 Minute; rechts: +1 Minute; Mitte: kurzer Tap zum Starten |
-| Running | Kurzer Tap pausiert |
-| Paused | Kurzer Tap setzt fort |
+| Running | Einzel-Tap pausiert; Doppeltipp bricht ab |
+| Paused | Einzel-Tap setzt fort; Doppeltipp bricht ab |
 | Finished | Kurzer Tap setzt zurück auf Ready |
 
 Die Dauer bleibt allein im TimerCore gespeichert. Grenzen werden geklemmt,
@@ -44,7 +44,7 @@ Bogenenden. Die Zeit verwendet geglättete Roboto-Ziffern mit gleich breiten Zif
 mit Abstand innerhalb des Kreises. Auf dem aktuellen logischen 280 × 240
 Bild beträgt der Radius der Strichmitte 104 Pixel, die Strichbreite ungefähr
 6 Pixel mit geglätteten Randpixeln, also etwa 3 Pixel breiter als zuvor.
-Ein vollständiger Ring in verblasstem Orange (18 % Helligkeit) liegt dauerhaft
+Ein vollständiger Ring in verblasstem Orange (38 % Helligkeit) liegt dauerhaft
 unter dem hellen Fortschrittsbogen; er ist auch in Ready sichtbar. Der Orangeton ist etwas wärmer.
 Dies ist ein geometrischer Zwischenstand, kein nachgezeichneter Ensō.
 
@@ -61,6 +61,22 @@ aller Phasen gleich. Wiederholte Updates in Finished starten das Blinken nicht
 neu. Ein Tap zurück auf Ready beendet eine laufende Blinkfolge und schaltet
 wieder auf dauerhaft an. `CompletionBlink` verwendet unsigned Zeitdifferenzen,
 kein `delay()` und keine TimerCore-Änderung.
+
+## Doppeltipp zum Abbrechen
+
+Stand 07.10.2026: Doppeltipp und der stärker orangefarbene Hintergrundring
+sind lokal implementiert und erfolgreich kompiliert (76160 Byte Flash /
+142308 Byte RAM). Der Upload wurde nicht freigegeben und ist noch ausstehend.
+Lokale Tests wurden weiterhin nicht ausgeführt.
+
+In Running und Paused werden zwei kurze Taps innerhalb von 400 ms und mit
+höchstens 60 Pixel Abstand als Doppeltipp erkannt. Er bricht die Sitzung ab
+und kehrt mit derselben eingestellten Dauer auf Ready zurück. Der erste Tap
+pausiert nicht vorab: Ein Einzel-Tap wird erst nach dem 400-ms-Fenster ausgelöst.
+In Ready startet ein Tap weiterhin unmittelbar; dort gibt es keinen
+Doppeltipp-Abbruch. Plus/Minus reagieren weiterhin auf den ersten Kontakt.
+Ein Zustandswechsel, beispielsweise durch Serial, verwirft wartende Taps.
+Die Erkennung liegt in `TapSequence`, nicht im TimerCore.
 
 ## Aufbau
 
@@ -140,7 +156,7 @@ In der Mitte und außerhalb von Ready wird ein Tap beim Loslassen erkannt:
 - Halten, seitliches Gleiten oder Bewegung weg und zurück: keine Tap-Aktion.
 - Fehlerhafte I²C-Lesevorgänge oder ungültige Kontaktkoordinaten verwerfen den
   Kontakt; fehlende Daten werden nicht als Loslassen interpretiert.
-- Nach einem Kontakt werden neue Kontakte innerhalb von 120 ms verworfen,
+- Nach einem Kontakt werden neue Kontakte innerhalb von 50 ms verworfen,
   um Kontaktprellen zu unterdrücken. Controller-GestureID-Berichte werden nicht
   zusätzlich in Aktionen umgesetzt; damit gibt es keinen zweiten Start-Tap nach
   dem Drücken von Minus oder Plus.
@@ -254,7 +270,9 @@ Für die Abnahme der geflashten Version am Gerät prüfen:
 5. Pause hält Zeit und Kreis; Fortsetzen zählt korrekt weiter.
 6. `00:00` mit geschlossenem Kreis; danach exakt drei ruhige Lichtblinks,
    ohne Löschen, neue Grafik oder erneutes Blinken beim Warten.
-7. Tap setzt auf die eingestellte Dauer zurück. Auch Reset während eines
+7. Doppeltipp während Running und Paused bricht ab, ohne danach neu zu starten.
+   Einzel-Taps pausieren/setzen nach ungefähr 400 ms fort.
+   In Finished setzt ein Tap auf die eingestellte Dauer zurück. Auch Reset während eines
    OFF-Intervalls schaltet das Licht wieder an.
 8. Serial funktioniert während Displaytransaktionen. Für einen schnellen
    Abschluss aus Ready `duration 5`, dann `start` verwenden.

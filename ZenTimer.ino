@@ -53,7 +53,7 @@ void loop() {
                                "Touch nicht bereit; Serial bleibt nutzbar.");
   }
   wasSerialConnected = connected;
-  const InputAction action = touch.poll(now,timer.state() == TimerCore::State::Ready);
+  const InputAction action = touch.poll(now,timer.state());
 #if ZENTIMER_COLOR_TEST
   (void)action;
   display.pump();
@@ -70,7 +70,8 @@ void loop() {
     applyTimerAction(timer,action);
     if (connected) {
       const auto point = touch.lastPosition();
-      Serial.print(action == InputAction::Tap ? "Tap: x=" :
+      Serial.print(action == InputAction::DoubleTap ? "Double tap / cancel: x=" :
+                   action == InputAction::Tap ? "Tap: x=" :
                    action == InputAction::IncreaseDuration ? "Plus: x=" : "Minus: x="); Serial.print(point.x);
       Serial.print(" y="); Serial.println(point.y);
     }

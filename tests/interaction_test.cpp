@@ -1,6 +1,7 @@
 #include "../TouchGesture.h"
 #include "../TimerActions.h"
 #include "../CompletionBlink.h"
+#include "../TapSequence.h"
 #include <cassert>
 #include <initializer_list>
 class ManualClock : public TimeSource {
@@ -57,6 +58,24 @@ int main() {
   assert(timer.state()==TimerCore::State::Finished);
   applyTimerAction(timer,InputAction::DecreaseDuration);assert(timer.durationSeconds()==3600);
   applyTimerAction(timer,InputAction::Tap);assert(timer.state()==TimerCore::State::Ready);
+  TapSequence sequence;
+  sequence.setContext(0,false);assert(sequence.tap(0,{100,100})==InputAction::Tap);
+  sequence.setContext(1,true);assert(sequence.tap(1000,{100,100})==InputAction::None);
+  assert(sequence.tap(1250,{110,100})==InputAction::DoubleTap);
+  assert(sequence.flush(2000)==InputAction::None); // no extra single after cancel
+  assert(sequence.tap(3000,{100,100})==InputAction::None);
+  assert(sequence.flush(3400)==InputAction::None);
+  assert(sequence.flush(3401)==InputAction::Tap);
+  sequence.tap(4000,{100,100});sequence.setContext(2,true);
+  assert(sequence.flush(4500)==InputAction::None); // Serial/state changes cancel waiting taps
+  sequence.tap(UINT32_MAX-100,{100,100});
+  assert(sequence.tap(100,{100,100})==InputAction::DoubleTap);
+  applyTimerAction(timer,InputAction::Tap);assert(timer.state()==TimerCore::State::Running);
+  applyTimerAction(timer,InputAction::DoubleTap);assert(timer.state()==TimerCore::State::Ready);
+  assert(timer.durationSeconds()==3600);
+  applyTimerAction(timer,InputAction::Tap);applyTimerAction(timer,InputAction::Tap);
+  assert(timer.state()==TimerCore::State::Paused);
+  applyTimerAction(timer,InputAction::DoubleTap);assert(timer.state()==TimerCore::State::Ready);
   CompletionBlink blink;blink.start(UINT32_MAX-100);
   assert(!blink.level(UINT32_MAX-100));assert(blink.level(199));
   assert(!blink.level(499));assert(blink.level(799));assert(!blink.level(1099));

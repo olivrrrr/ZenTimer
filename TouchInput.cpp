@@ -20,16 +20,19 @@ bool TouchInput::begin() {
   attachInterrupt(digitalPinToInterrupt(BoardConfig::TouchIrq), touchIsr, FALLING);
   return configured;
 }
-InputAction TouchInput::poll(uint32_t now, bool ready) {
-  if (uint32_t(now-lastRead_) < 15) return InputAction::None;
+InputAction TouchInput::poll(uint32_t now, TimerCore::State state) {
+  const bool ready = state == TimerCore::State::Ready;
+  taps_.setContext(static_cast<uint8_t>(state),
+      state == TimerCore::State::Running || state == TimerCore::State::Paused);
+  if (uint32_t(now-lastRead_) < 15) return taps_.flush(now);
   noInterrupts(); const bool pending = pendingIrq; pendingIrq = false; interrupts();
   if (!pending && !gesture_.tracking() && digitalRead(BoardConfig::TouchIrq) == HIGH)
-    return InputAction::None;
+    return taps_.flush(now);
   lastRead_ = now;
   Wire.beginTransmission(Address); Wire.write(0x02);
   if (Wire.endTransmission(false) != 0 || Wire.requestFrom(Address, size_t(5)) != 5) {
     gesture_.discard();
-    return InputAction::None;
+    return taps_.flush(now);
   }
   uint8_t values[5];
   for (uint8_t& value : values) value = Wire.read();
@@ -45,5 +48,6 @@ InputAction TouchInput::poll(uint32_t now, bool ready) {
       return point.x < sideWidth ? InputAction::DecreaseDuration : InputAction::IncreaseDuration;
     }
   }
-  return event == InputAction::Tap ? event : InputAction::None;
+  if (event == InputAction::Tap) return taps_.tap(now,gesture_.position());
+  return taps_.flush(now);
 }

@@ -18,6 +18,7 @@ Hardware-SPI mit zunächst 8 MHz und Software-SPI-Rückfalloption, Touch und ein
 ab 6 Uhr. Im Zustand Ready lässt sich
 die Dauer über dezente graue Minus-/Plus-Symbole zwischen 1 und 60 Minuten
 einstellen. Große seitliche Touchflächen reagieren schon beim Aufsetzen.
+Ein Doppeltipp bricht eine laufende oder pausierte Sitzung ab.
 Roboto-Ziffern und ein breiterer Fortschrittsbogen über einem verblasst
 orangefarbenen Ring bilden die Anzeige. Dort stehen Build-Befehle, Farbtest,
 Software-SPI-Fallback und die noch nötigen Hardwareprüfungen.

@@ -22,7 +22,7 @@ class TouchGesture {
     ScreenGeometry::Point point;
     const bool valid = geometry_.nativeToScreen(rawX,rawY,point);
     if (!tracking_) {
-      tracking_ = true; invalid_ = !valid || (hasRelease_ && uint32_t(now-released_) < 120); started_ = now; maxDistanceSquared_ = 0;
+      tracking_ = true; invalid_ = !valid || (hasRelease_ && uint32_t(now-released_) < 50); started_ = now; maxDistanceSquared_ = 0;
       if (valid) start_ = last_ = point;
     } else if (!valid) invalid_ = true;
     if (valid && !invalid_) {
