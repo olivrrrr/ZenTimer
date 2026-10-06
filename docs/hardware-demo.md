@@ -1,4 +1,4 @@
-# ZenTimer: 2-Minuten-Präsentations-Build
+# ZenTimer: 20-Minuten-Präsentations-Build
 
 Branch `feature/timer-core`. Der erste integrierte Build wurde auf das Gerät geladen und vom Nutzer
 getestet. LCD, CST816S-Touch und kontinuierliche Drag-Koordinaten sind laut
@@ -17,9 +17,12 @@ Version verwendet Roboto-Ziffern und einen breiteren geglätteten Bogen; in Read
 kommen graue Minus-/Plus-Symbole hinzu. Für diese Änderung wurden auf Wunsch
 keine lokalen Tests oder neuen Vorschau-Renderings ausgeführt.*
 
+Die Geräte-Startdauer steht in `ZenTimer.ino`: `timer.setDuration(1200)`
+setzt 20 Minuten. Der TimerCore- und Simulator-Standard bleibt bei 10 Minuten.
+
 ## Bedienung und Anzeige
 
-Nach dem ersten Bildaufbau steht `02:00` mittig auf Schwarz. In Ready sind
+Nach dem ersten Bildaufbau steht `20:00` mittig auf Schwarz. In Ready sind
 links ein dezentes graues Minus und rechts ein Plus sichtbar. Außerhalb von
 Ready verschwinden beide. Zustandslabels und Menüs bleiben ausgeblendet.
 
@@ -66,7 +69,7 @@ kein `delay()` und keine TimerCore-Änderung.
 
 Stand 07.10.2026: Doppeltipp und der stärker orangefarbene Hintergrundring
 sind lokal implementiert und erfolgreich kompiliert (76160 Byte Flash /
-142308 Byte RAM). Der Upload wurde nicht freigegeben und ist noch ausstehend.
+142308 Byte RAM). Der Upload dieses Zwischenstands wurde zunächst nicht freigegeben.
 Lokale Tests wurden weiterhin nicht ausgeführt.
 
 In Running und Paused werden zwei kurze Taps innerhalb von 400 ms und mit

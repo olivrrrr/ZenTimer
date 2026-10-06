@@ -34,7 +34,7 @@ uint32_t colorSince = 0;
 
 void setup() {
   Serial.begin(115200);
-  timer.setDuration(120); // demo default; TimerCore itself keeps its original default
+  timer.setDuration(1200); // demo default; TimerCore itself keeps its original default
   lcd.begin();
   touchReady = touch.begin();
 #if ZENTIMER_COLOR_TEST

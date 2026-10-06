@@ -13,7 +13,7 @@ stehen im [Hardware-Dokument](docs/hardware-demo.md#lokale-prüfung-und-abnahme-
 Die [bebilderte Anschlussanleitung für das Waveshare-Touchdisplay](docs/wiring.md#bebilderte-anschlussanleitung)
 zeigt Steckerorientierung, Signalzuordnung und die stromlose Prüfung.
 
-Der aktuelle [2-Minuten-Präsentations-Build](docs/hardware-demo.md) verwendet
+Der aktuelle [20-Minuten-Präsentations-Build](docs/hardware-demo.md) verwendet
 Hardware-SPI mit zunächst 8 MHz und Software-SPI-Rückfalloption, Touch und einen orangefarbenen Kreis
 ab 6 Uhr. Im Zustand Ready lässt sich
 die Dauer über dezente graue Minus-/Plus-Symbole zwischen 1 und 60 Minuten
@@ -33,7 +33,7 @@ Software-SPI-Fallback und die noch nötigen Hardwareprüfungen.
   Eingabelese-Schleife; feste Resetwartezeiten gibt es nur beim Hardwarestart.
 
 Zustände: **bereit**, **läuft**, **pausiert**, **beendet**. Standarddauer auf dem
-Gerät: **2 Minuten** für die Präsentation. Der unveränderte Timerkern und
+Gerät: **20 Minuten** (1200 Sekunden), eingestellt in `ZenTimer.ino`. Der unveränderte Timerkern und
 Mac-Simulator starten weiterhin mit 10 Minuten. Die Dauer wird im RAM gehalten
 und nach einem Neustart zurückgesetzt.
 Pausen zählen nicht zur Meditationsdauer. Der Timer läuft auch bei getrenntem
