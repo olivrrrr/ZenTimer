@@ -1,9 +1,10 @@
 # Anschlussplan: Waveshare 1.69″ Touch LCD → XIAO nRF52840
 
-Stand: 06.10.2026, Branch `feature/timer-core`. **Überprüfbarer Entwurf;
-das konkrete Modul und Kabel sind noch nicht per Foto bestätigt.**
-Nur Dokumentation: Timerkern, Firmware und Mac-Simulator bleiben erhalten.
-Kein Upload und noch kein Display-Testprogramm.
+Stand: 06.10.2026, Branch `feature/timer-core`. **Hardwarebelegung durch den Projekt-Handoff bestätigt.**
+LCD-Farbflächen und CST816S-Touch funktionieren laut Hardwaretest.
+Wichtig: Gegenüber dem ursprünglichen Entwurf sind **TP_IRQ → D0** und
+**TP_RST → D1** korrigiert. Die neue Timer-UI mit Kreis und Wischgesten ist geflasht; ihre vollständige
+Funktionsabnahme ist noch nicht protokolliert; siehe [Präsentations-Build](hardware-demo.md).
 
 ## Bebilderte Anschlussanleitung
 
@@ -34,8 +35,8 @@ dir weg. Den 12-poligen Anschluss nach oben drehen. In dieser Ansicht steht
 Referenz übereinstimmen. Der untere Flexanschluss H1 gehört zum Display selbst
 und wird nicht für das XIAO-Kabel verwendet.
 
-Vor der Montage benötigen wir ein Foto der tatsächlichen Rückseite samt
-Revision sowie des Kabelsteckers von beiden Seiten und der freien Enden.
+Für eine spätere erneute Montage die tatsächliche Rückseite samt Revision,
+den Kabelstecker von beiden Seiten und die freien Enden fotografieren.
 Bei abweichender Platine oder nicht eindeutig erkennbarer Ausrichtung zuerst
 die Zuordnung klären. Die Ansicht des losen Gegensteckers kann gespiegelt sein.
 
@@ -65,7 +66,7 @@ Abschnitt [Vorgeschlagene Zuordnung](#vorgeschlagene-zuordnung) abgleichen:
 
 1. **Versorgung:** P1.1/VCC an XIAO **3V3**, P1.2/GND an **GND**.
 2. **LCD:** P1.3–8 an D10, D8, D9, D7, D3 und D6.
-3. **Touch:** P1.9–12 an D4, D5, D0 und D1.
+3. **Touch:** P1.9–12 an D4, D5, D1 und D0.
 
 Bei Lötverbindungen freie Leiter gegeneinander isolieren und das Kabel so
 führen, dass kein Zug auf Stecker oder Lötstellen wirkt. Noch keine Versorgung
@@ -92,9 +93,8 @@ fotografieren und die Ergebnisse festhalten.
 
 Hier endet die Anschlussanleitung. **USB und Akku bleiben getrennt, bis die
 Verdrahtung bestätigt und der separate Display-Test vorbereitet ist.** Der
-folgende Test prüft Farbflächen, Umrandung, Text und Touchposition. Ein dunkles
-Display mit der bisherigen Timer-Firmware ist noch kein Verdrahtungsnachweis;
-sie initialisiert das LCD derzeit nicht. Timerkern und Simulator bleiben erhalten.
+folgende Test prüft Farbflächen, Umrandung, Text und Touchposition. Ein dunkles Display während des ersten Bildaufbaus ist erwartbar: Der neue
+Build schaltet die Beleuchtung erst nach dem vollständig übertragenen Bild ein. Timerkern und Simulator bleiben erhalten.
 
 ## Modul und elektrische Eckdaten
 
@@ -160,8 +160,8 @@ Touch-Verdrahtung.
 | 8 · LCD_BL | D6 | P1.11 | Backlight-Steuerung, HIGH: an; später PWM |
 | 9 · TP_SDA | D4 / SDA | P0.04 | Touch-I²C-Daten, bidirektional |
 | 10 · TP_SCL | D5 / SCL | P0.05 | Touch-I²C-Takt |
-| 11 · TP_RST | D0 | P0.02 | Eigener Touch-Reset, aktiv LOW; neu geplant |
-| 12 · TP_IRQ | D1 | P0.03 | Touch-Interrupt zum XIAO; neu geplant |
+| 11 · TP_RST | D1 | P0.03 | Eigener Touch-Reset, aktiv LOW; hardwarebestätigt |
+| 12 · TP_IRQ | D0 | P0.02 | Touch-Interrupt zum XIAO; hardwarebestätigt |
 
 Signal-/Kontaktnummern stammen aus dem
 [Waveshare-Schaltplan](https://files.waveshare.com/wiki/1.69inch-Touch-LCD-Module/1.69inch_Touch_LCD_Module.pdf).
@@ -174,7 +174,8 @@ FQBN `Seeeduino:nrf52:xiaonRF52840Sense` bleibt vorerst bestehen.
 [Core 1.1.13: variant.h](https://github.com/Seeed-Studio/Adafruit_nRF52_Arduino/blob/1.1.13/variants/Seeed_XIAO_nRF52840_Sense/variant.h),
 [variant.cpp](https://github.com/Seeed-Studio/Adafruit_nRF52_Arduino/blob/1.1.13/variants/Seeed_XIAO_nRF52840_Sense/variant.cpp).
 
-**SPI-Sonderfall für den späteren Test:** D9 ist der Standard-MISO-Pin des
+**Hinweis für einen späteren Wechsel zu Hardware-SPI:** Der aktuelle
+Software-SPI-Treiber initialisiert keinen MISO-Pin. Bei Hardware-SPI gilt: D9 ist der Standard-MISO-Pin des
 Arduino-Cores, hier aber LCD_CS. Das LCD benötigt keine MISO-Leitung.
 `SPI.begin()` richtet dennoch standardmäßig D9 als MISO ein; die spätere
 Initialisierung muss D9 anschließend korrekt als CS-Ausgang behandeln oder
@@ -213,21 +214,21 @@ Für ZenTimer ergibt sich folgendes Pinbudget; dies sind Planungsvorschläge:
   vorliegende Plan nicht ohne Umplanung oder zusätzliche Hardware. Es wird
   noch keine Audioverdrahtung zugesagt.
 
-## Vor dem tatsächlichen Anschließen zu klären
+## Hardwarestand und weitere Prüfung
 
-Bitte ein scharfes **Foto der Modulrückseite mit vollständiger Beschriftung,
-Revision und 12-poligem Anschluss** sowie **des Kabelsteckers von beiden
-Seiten und seiner freien Enden** bereitstellen. Falls vorhanden, Artikelnummer
-oder Produktlink der gekauften Variante ergänzen. Damit gleichen wir Platine,
-Steckerrichtung und Aderzuordnung mit diesem Entwurf ab; der Widerspruch
-CST816S/CST816D bleibt bis zur Variantenprüfung ausdrücklich offen.
+Der Hardware-Handoff bestätigt ST7789V2, 240 × 280, Y-Offset +20 und
+CST816S an 0x15 mit IRQ D0 / Reset D1. Die bisherige Testorientierung passt
+noch nicht zur physischen Aufstellung. Die zentrale Drehung des neuen Builds
+und die Zuordnung der Touchkoordinaten müssen am Gerät geprüft werden.
+Fotos von Platine und Kabel bleiben für eine reproduzierbare Montage hilfreich.
 
 Danach bei **abgezogenem USB und getrenntem Akku** verkabeln. Versorgung
 und jede Signalader anhand der bestätigten Orientierung zuordnen; VCC/GND
 und fehlenden Versorgungskurzschluss stromlos prüfen. Zum ersten Test
 Proximity und Audio noch nicht anschließen.
 
-Erst nach bestätigter Verdrahtung folgt ein **separater Display-Testsketch**
-mit Farbflächen, Umrandung, Text und Touchposition. Dabei werden LCD-Offsets,
+Der vorhandene **separate Display-Testsketch** `Displaytest/Displaytest.ino`
+bleibt als Hardware-Referenz erhalten. Der neue Build ergänzt einen eigenen
+Farbtest ohne UI über einen Build-Schalter. Dabei werden LCD-Offsets,
 Orientierung und Touch-Koordinaten geprüft. Timer und Simulator bleiben als
 eigene funktionierende Anwendungen erhalten.

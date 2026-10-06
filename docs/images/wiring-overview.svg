@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1030" viewBox="0 0 1200 1030" role="img" aria-labelledby="title desc">
 <title id="title">ZenTimer: geplanter Anschluss von LCD und Touch an XIAO nRF52840</title>
-<desc id="desc">Logische Verbindungsskizze der zwölf Displaykontakte. Die Pinpositionen am XIAO sind nicht maßstäblich und stellen keine physische Padreihenfolge dar. Farben unterscheiden Signalgruppen und sind keine Kabelfarben. Konkretes Modul und Kabel noch unbestätigt.</desc>
+<desc id="desc">Logische Verbindungsskizze der zwölf Displaykontakte. Die Pinpositionen am XIAO sind nicht maßstäblich und stellen keine physische Padreihenfolge dar. Farben unterscheiden Signalgruppen und sind keine Kabelfarben. Belegung laut Hardware-Handoff bestätigt.</desc>
 <rect width="1200" height="1030" rx="20" fill="#f8fafc"/>
 <g font-family="Arial, Helvetica, sans-serif" fill="#172033">
 <text x="52" y="57" font-size="30" font-weight="700">ZenTimer · LCD + Touch anschließen</text>
-<text x="52" y="91" font-size="18">Anschlussentwurf · konkrete Modul- und Kabelvariante noch bestätigen</text>
+<text x="52" y="91" font-size="18">Anschlussentwurf · Belegung hardwarebestätigt · neue Timer-UI noch am Gerät prüfen</text>
 <rect x="52" y="116" width="1096" height="58" rx="10" fill="#fff3db"/>
 <text x="72" y="140" font-size="16" font-weight="700">Nur stromlos: USB abziehen und Akku trennen.</text>
 <text x="72" y="162" font-size="16">Farben = Signalgruppen, keine Kabelfarben. Pinpositionen rechts sind nur schematisch.</text>
@@ -46,10 +46,10 @@
 <text x="780" y="757" font-size="21" font-weight="700">D5 · SCL</text><text x="966" y="757" font-size="16" fill="#64748b">I²C-Takt</text>
 <circle cx="94" cy="802" r="17" fill="#0f766e"/><text x="94" y="808" text-anchor="middle" font-size="16" font-weight="700" fill="white">11</text>
 <text x="127" y="808" font-size="21">TP_RST</text><path d="M 357 802 H 760" fill="none" stroke="#0f766e" stroke-width="3"/><circle cx="357" cy="802" r="5" fill="#0f766e"/><circle cx="760" cy="802" r="5" fill="#0f766e"/>
-<text x="780" y="808" font-size="21" font-weight="700">D0</text><text x="966" y="808" font-size="16" fill="#64748b">Touch-Reset</text>
+<text x="780" y="808" font-size="21" font-weight="700">D1</text><text x="966" y="808" font-size="16" fill="#64748b">Touch-Reset</text>
 <circle cx="94" cy="853" r="17" fill="#0f766e"/><text x="94" y="859" text-anchor="middle" font-size="16" font-weight="700" fill="white">12</text>
 <text x="127" y="859" font-size="21">TP_IRQ</text><path d="M 357 853 H 760" fill="none" stroke="#0f766e" stroke-width="3"/><circle cx="357" cy="853" r="5" fill="#0f766e"/><circle cx="760" cy="853" r="5" fill="#0f766e"/>
-<text x="780" y="859" font-size="21" font-weight="700">D1</text><text x="966" y="859" font-size="16" fill="#64748b">Touch-Interrupt</text>
+<text x="780" y="859" font-size="21" font-weight="700">D0</text><text x="966" y="859" font-size="16" fill="#64748b">Touch-Interrupt</text>
 <text x="76" y="900" font-size="15" fill="#64748b">Kein LCD-MISO erforderlich.</text>
 <text x="764" y="900" font-size="15" fill="#64748b">D2 bleibt frei · Proximity / Audio noch planen</text>
 <text x="52" y="955" font-size="18" font-weight="700">VCC → 3V3. Nicht an 5V/VBUS oder LiPo-BAT anschließen.</text>

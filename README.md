@@ -5,23 +5,33 @@
 *Designentwurf für Gehäuse und Oberfläche.*
 
 Kleine modulare Meditationstimer-Firmware für den Seeed XIAO nRF52840.
-Branch: `feature/timer-core`. Der bisherige Blinktest wurde auf der Hardware
-getestet; diese Timer-Firmware muss nach einem bewussten Upload noch dort
-geprüft werden.
+Branch: `feature/timer-core`. LCD und Touch wurden auf der Hardware getestet.
+Die aktuelle Version mit Kreis, Wischgesten und Abschlussblinken wurde am
+06.10.2026 erfolgreich auf das XIAO geflasht. Die detaillierten Abnahmeprüfungen
+stehen im [Hardware-Dokument](docs/hardware-demo.md#lokale-prüfung-und-abnahme-am-gerät).
 
 Die [bebilderte Anschlussanleitung für das Waveshare-Touchdisplay](docs/wiring.md#bebilderte-anschlussanleitung)
 zeigt Steckerorientierung, Signalzuordnung und die stromlose Prüfung.
+
+Der aktuelle [2-Minuten-Präsentations-Build](docs/hardware-demo.md) verwendet
+die getestete Software-SPI-Ansteuerung, Touch und einen orangefarbenen Kreis
+ab 6 Uhr. Im Zustand Ready lässt sich
+die Dauer per vertikalem Swipe zwischen 1 und 60 Minuten einstellen.
+Dort stehen Build-Befehle, Farbtest und die noch nötigen Hardwareprüfungen.
 
 ## Aufbau und Verhalten
 
 - `TimerCore.h`: reine C++-Timerlogik ohne Arduino- oder I/O-Abhängigkeiten.
 - `SerialConsole.h/.cpp`: USB-Serial-Befehle und Statusausgabe.
 - `TimeSource.h`: austauschbare monotone Millisekundenquelle.
-- `ZenTimer.ino`: verbindet beide Module mit einer `millis()`-Zeitquelle; keine Wartezeit auf USB,
-  kein `delay()` und keine blockierende Eingabelese-Schleife.
+- `ZenTimer.ino`: verbindet Timer, Serial, Anzeige und Touch mit einer
+  `millis()`-Zeitquelle. Keine Wartezeit auf USB und keine blockierende
+  Eingabelese-Schleife; feste Resetwartezeiten gibt es nur beim Hardwarestart.
 
-Zustände: **bereit**, **läuft**, **pausiert**, **beendet**. Standarddauer:
-10 Minuten. Die Dauer wird im RAM gehalten und nach einem Neustart zurückgesetzt.
+Zustände: **bereit**, **läuft**, **pausiert**, **beendet**. Standarddauer auf dem
+Gerät: **2 Minuten** für die Präsentation. Der unveränderte Timerkern und
+Mac-Simulator starten weiterhin mit 10 Minuten. Die Dauer wird im RAM gehalten
+und nach einem Neustart zurückgesetzt.
 Pausen zählen nicht zur Meditationsdauer. Der Timer läuft auch bei getrenntem
 Monitor weiter. `cancel` setzt ihn auf bereit mit der eingestellten vollen Dauer.
 Nach beendet beginnt `start` eine neue Sitzung mit derselben Dauer.
@@ -70,8 +80,8 @@ arduino-cli monitor --port /dev/cu.usbmodem2401 --config baudrate=115200
 
 Den aktuellen Port vor Monitorstart und jedem späteren Upload prüfen;
 `/dev/cu.usbmodem2401` ist nur der zuletzt bekannte Port. Build und Monitor
-laden keine Firmware hoch. Der Monitor benötigt die Timer-Firmware auf dem
-Board; mit dem bisherigen Blinktest gibt es noch keine Timerbefehle.
+laden keine Firmware hoch. Der Monitor benötigt die Timer-Firmware auf dem Board; sie ist inzwischen
+auf dem angeschlossenen XIAO installiert.
 
 In VS Code den Projektordner `ZenTimer` öffnen. **Run Build Task** startet
 `ZenTimer: Build` mit dem nötigen PATH. Unter **Run Task** stehen zusätzlich
@@ -159,10 +169,12 @@ Er prüft die Bedienelemente und rendert eine Halbzeit-Vorschau des Kreisbogens 
 
 ## Spätere Erweiterungen
 
-Waveshare 1,69-Zoll-Touch-LCD: derzeit nicht angeschlossen, passendes
-12-poliges Kabel fehlt. Proximity-Sensor und LiPo sind vorhanden; genaue
-Varianten sind noch offen. Display, Audio und Synchronisierung sind in dieser
-Firmware nicht implementiert.
+Waveshare 1,69-Zoll-Touch-LCD und CST816S-Touch sind angeschlossen und laut
+Hardware-Handoff einzeln getestet. Der neue Präsentations-Build verbindet sie
+mit dem Timerkern und ist geflasht; die vollständige Hardwareabnahme ist noch
+nicht dokumentiert. Proximity-Sensor
+und LiPo sind vorhanden; genaue Varianten sind noch offen. Audio, Sensorsteuerung,
+Sleep und Synchronisierung sind noch nicht implementiert.
 
 Zieloberfläche: langsam schließender Fortschrittskreis, zuschaltbare Restzeit
 und dezentes statisches Steinmotiv. Geplant sind Timefully-Profilimport,
