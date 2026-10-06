@@ -202,3 +202,28 @@ Abbruch/Pause prüfen; danach mit der Bridge auslesen und den Timefully-Import
 prüfen. Erst anschließend gezielt einen Stromverlustversuch durchführen.
 Timerkern und Mac-Simulator bleiben erhalten; der Simulator bildet die neuen
 Geräte-Menüs und QSPI-Hardware derzeit nicht ab.
+
+
+## Menüvorschau ohne Hardware erzeugen
+
+Der lokale Menütest bedient `DeviceMenu` mit simulierten Touchpositionen und
+verwendet `SessionStore` mit einem Flash-Ersatz im Arbeitsspeicher. Er prüft
+Profilauswahl, gespeicherte Anzeigeoptionen, Historie mit Seiten und Details,
+USB-Export sowie die Sperre während einer Sitzung. Die Screenshots entstehen
+aus den vom tatsächlichen `TimerDisplay` übertragenen RGB565-Pixeln. Die
+Sitzungen sind fiktive Testdaten; es wird kein Gerät angesprochen.
+
+```sh
+mkdir -p build/menu-preview
+c++ -std=c++17 -Wall -Wextra -pedantic -I tests/stubs \
+  tests/device_menu_test.cpp DeviceMenu.cpp SessionStore.cpp TimerDisplay.cpp \
+  -o build/menu-preview/device-menu-test
+./build/menu-preview/device-menu-test build/menu-preview
+python3 tools/render_menu_preview.py
+```
+
+Für die Bildübersicht wird Pillow benötigt (`python3 -m pip install Pillow`
+in einer passenden Python-Umgebung). Die Bilddatei liegt unter
+`build/menu-preview/menu-overview.png`; die einzelnen Originalansichten
+liegen daneben als PPM-Dateien. Die generierten Dateien bleiben lokal unter
+`build/` und werden nicht in Git aufgenommen.
