@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1030" viewBox="0 0 1200 1030" role="img" aria-labelledby="title desc">
+<title id="title">ZenTimer: geplanter Anschluss von LCD und Touch an XIAO nRF52840</title>
+<desc id="desc">Logische Verbindungsskizze der zwölf Displaykontakte. Die Pinpositionen am XIAO sind nicht maßstäblich und stellen keine physische Padreihenfolge dar. Farben unterscheiden Signalgruppen und sind keine Kabelfarben. Konkretes Modul und Kabel noch unbestätigt.</desc>
+<rect width="1200" height="1030" rx="20" fill="#f8fafc"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#172033">
+<text x="52" y="57" font-size="30" font-weight="700">ZenTimer · LCD + Touch anschließen</text>
+<text x="52" y="91" font-size="18">Anschlussentwurf · konkrete Modul- und Kabelvariante noch bestätigen</text>
+<rect x="52" y="116" width="1096" height="58" rx="10" fill="#fff3db"/>
+<text x="72" y="140" font-size="16" font-weight="700">Nur stromlos: USB abziehen und Akku trennen.</text>
+<text x="72" y="162" font-size="16">Farben = Signalgruppen, keine Kabelfarben. Pinpositionen rechts sind nur schematisch.</text>
+<rect x="52" y="196" width="365" height="723" rx="14" fill="white" stroke="#cbd5e1"/>
+<rect x="740" y="196" width="408" height="723" rx="14" fill="white" stroke="#cbd5e1"/>
+<text x="76" y="232" font-size="21" font-weight="700">Waveshare · P1 (12-polig)</text>
+<text x="764" y="232" font-size="21" font-weight="700">XIAO nRF52840</text>
+<text x="76" y="257" font-size="15" fill="#64748b">Kontakt / Signal</text>
+<text x="764" y="257" font-size="15" fill="#64748b">Anschluss / Funktion</text>
+<circle cx="94" cy="292" r="17" fill="#b45309"/><text x="94" y="298" text-anchor="middle" font-size="16" font-weight="700" fill="white">1</text>
+<text x="127" y="298" font-size="21">VCC</text><path d="M 357 292 H 760" fill="none" stroke="#b45309" stroke-width="3"/><circle cx="357" cy="292" r="5" fill="#b45309"/><circle cx="760" cy="292" r="5" fill="#b45309"/>
+<text x="780" y="298" font-size="21" font-weight="700">3V3</text><text x="966" y="298" font-size="16" fill="#64748b">Versorgung</text>
+<circle cx="94" cy="343" r="17" fill="#475569"/><text x="94" y="349" text-anchor="middle" font-size="16" font-weight="700" fill="white">2</text>
+<text x="127" y="349" font-size="21">GND</text><path d="M 357 343 H 760" fill="none" stroke="#475569" stroke-width="3"/><circle cx="357" cy="343" r="5" fill="#475569"/><circle cx="760" cy="343" r="5" fill="#475569"/>
+<text x="780" y="349" font-size="21" font-weight="700">GND</text><text x="966" y="349" font-size="16" fill="#64748b">Masse</text>
+<circle cx="94" cy="394" r="17" fill="#2563eb"/><text x="94" y="400" text-anchor="middle" font-size="16" font-weight="700" fill="white">3</text>
+<text x="127" y="400" font-size="21">LCD_DIN</text><path d="M 357 394 H 760" fill="none" stroke="#2563eb" stroke-width="3"/><circle cx="357" cy="394" r="5" fill="#2563eb"/><circle cx="760" cy="394" r="5" fill="#2563eb"/>
+<text x="780" y="400" font-size="21" font-weight="700">D10 · MOSI</text><text x="966" y="400" font-size="16" fill="#64748b">SPI-Daten</text>
+<circle cx="94" cy="445" r="17" fill="#2563eb"/><text x="94" y="451" text-anchor="middle" font-size="16" font-weight="700" fill="white">4</text>
+<text x="127" y="451" font-size="21">LCD_CLK</text><path d="M 357 445 H 760" fill="none" stroke="#2563eb" stroke-width="3"/><circle cx="357" cy="445" r="5" fill="#2563eb"/><circle cx="760" cy="445" r="5" fill="#2563eb"/>
+<text x="780" y="451" font-size="21" font-weight="700">D8 · SCK</text><text x="966" y="451" font-size="16" fill="#64748b">SPI-Takt</text>
+<circle cx="94" cy="496" r="17" fill="#2563eb"/><text x="94" y="502" text-anchor="middle" font-size="16" font-weight="700" fill="white">5</text>
+<text x="127" y="502" font-size="21">LCD_CS</text><path d="M 357 496 H 760" fill="none" stroke="#2563eb" stroke-width="3"/><circle cx="357" cy="496" r="5" fill="#2563eb"/><circle cx="760" cy="496" r="5" fill="#2563eb"/>
+<text x="780" y="502" font-size="21" font-weight="700">D9</text><text x="966" y="502" font-size="16" fill="#64748b">LCD-Auswahl</text>
+<circle cx="94" cy="547" r="17" fill="#2563eb"/><text x="94" y="553" text-anchor="middle" font-size="16" font-weight="700" fill="white">6</text>
+<text x="127" y="553" font-size="21">LCD_DC</text><path d="M 357 547 H 760" fill="none" stroke="#2563eb" stroke-width="3"/><circle cx="357" cy="547" r="5" fill="#2563eb"/><circle cx="760" cy="547" r="5" fill="#2563eb"/>
+<text x="780" y="553" font-size="21" font-weight="700">D7</text><text x="966" y="553" font-size="16" fill="#64748b">Daten / Kommando</text>
+<circle cx="94" cy="598" r="17" fill="#2563eb"/><text x="94" y="604" text-anchor="middle" font-size="16" font-weight="700" fill="white">7</text>
+<text x="127" y="604" font-size="21">LCD_RST</text><path d="M 357 598 H 760" fill="none" stroke="#2563eb" stroke-width="3"/><circle cx="357" cy="598" r="5" fill="#2563eb"/><circle cx="760" cy="598" r="5" fill="#2563eb"/>
+<text x="780" y="604" font-size="21" font-weight="700">D3</text><text x="966" y="604" font-size="16" fill="#64748b">LCD-Reset</text>
+<circle cx="94" cy="649" r="17" fill="#2563eb"/><text x="94" y="655" text-anchor="middle" font-size="16" font-weight="700" fill="white">8</text>
+<text x="127" y="655" font-size="21">LCD_BL</text><path d="M 357 649 H 760" fill="none" stroke="#2563eb" stroke-width="3"/><circle cx="357" cy="649" r="5" fill="#2563eb"/><circle cx="760" cy="649" r="5" fill="#2563eb"/>
+<text x="780" y="655" font-size="21" font-weight="700">D6</text><text x="966" y="655" font-size="16" fill="#64748b">Backlight</text>
+<circle cx="94" cy="700" r="17" fill="#0f766e"/><text x="94" y="706" text-anchor="middle" font-size="16" font-weight="700" fill="white">9</text>
+<text x="127" y="706" font-size="21">TP_SDA</text><path d="M 357 700 H 760" fill="none" stroke="#0f766e" stroke-width="3"/><circle cx="357" cy="700" r="5" fill="#0f766e"/><circle cx="760" cy="700" r="5" fill="#0f766e"/>
+<text x="780" y="706" font-size="21" font-weight="700">D4 · SDA</text><text x="966" y="706" font-size="16" fill="#64748b">I²C-Daten</text>
+<circle cx="94" cy="751" r="17" fill="#0f766e"/><text x="94" y="757" text-anchor="middle" font-size="16" font-weight="700" fill="white">10</text>
+<text x="127" y="757" font-size="21">TP_SCL</text><path d="M 357 751 H 760" fill="none" stroke="#0f766e" stroke-width="3"/><circle cx="357" cy="751" r="5" fill="#0f766e"/><circle cx="760" cy="751" r="5" fill="#0f766e"/>
+<text x="780" y="757" font-size="21" font-weight="700">D5 · SCL</text><text x="966" y="757" font-size="16" fill="#64748b">I²C-Takt</text>
+<circle cx="94" cy="802" r="17" fill="#0f766e"/><text x="94" y="808" text-anchor="middle" font-size="16" font-weight="700" fill="white">11</text>
+<text x="127" y="808" font-size="21">TP_RST</text><path d="M 357 802 H 760" fill="none" stroke="#0f766e" stroke-width="3"/><circle cx="357" cy="802" r="5" fill="#0f766e"/><circle cx="760" cy="802" r="5" fill="#0f766e"/>
+<text x="780" y="808" font-size="21" font-weight="700">D0</text><text x="966" y="808" font-size="16" fill="#64748b">Touch-Reset</text>
+<circle cx="94" cy="853" r="17" fill="#0f766e"/><text x="94" y="859" text-anchor="middle" font-size="16" font-weight="700" fill="white">12</text>
+<text x="127" y="859" font-size="21">TP_IRQ</text><path d="M 357 853 H 760" fill="none" stroke="#0f766e" stroke-width="3"/><circle cx="357" cy="853" r="5" fill="#0f766e"/><circle cx="760" cy="853" r="5" fill="#0f766e"/>
+<text x="780" y="859" font-size="21" font-weight="700">D1</text><text x="966" y="859" font-size="16" fill="#64748b">Touch-Interrupt</text>
+<text x="76" y="900" font-size="15" fill="#64748b">Kein LCD-MISO erforderlich.</text>
+<text x="764" y="900" font-size="15" fill="#64748b">D2 bleibt frei · Proximity / Audio noch planen</text>
+<text x="52" y="955" font-size="18" font-weight="700">VCC → 3V3. Nicht an 5V/VBUS oder LiPo-BAT anschließen.</text>
+<text x="52" y="987" font-size="16">Belegung: docs/wiring.md · LCD wie Prospector; vier Touchleitungen zusätzlich für ZenTimer.</text>
+</g></svg>

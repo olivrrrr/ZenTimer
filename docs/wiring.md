@@ -5,6 +5,97 @@ das konkrete Modul und Kabel sind noch nicht per Foto bestätigt.**
 Nur Dokumentation: Timerkern, Firmware und Mac-Simulator bleiben erhalten.
 Kein Upload und noch kein Display-Testprogramm.
 
+## Bebilderte Anschlussanleitung
+
+Diese Anleitung beschreibt die geplante Montage nach dem Abgleich von Modul
+und Kabel. Die Bilder zeigen eine Herstellerreferenz und unsere Signalplanung;
+sie sind keine Fotos der bereits angeschlossenen ZenTimer-Hardware.
+
+### 1. Arbeitsplatz und Bauteile vorbereiten
+
+USB abziehen und den Akku vollständig vom XIAO trennen. Display, XIAO und
+12-poliges Kabel bereitlegen. Zum Zuordnen der Adern werden die lesbaren
+Platinenbeschriftungen, ein Multimeter mit Durchgangsprüfung und kleine
+Beschriftungsfähnchen benötigt. Proximity-Sensor und Audio bleiben zunächst
+separat. Bei Lötmontage die vorgesehenen Lötpads des XIAO verwenden.
+
+### 2. Rückseite und Anschlussrichtung vergleichen
+
+![Offizielle Waveshare-PCB-Ansicht der Modulrückseite: Anschluss P1 oben, Signalfolge von VCC links bis TP_IRQ rechts](images/waveshare-connector-reference.png)
+
+*Abbildung 1 — Herstellerreferenz, keine Aufnahme unseres Moduls.
+Waveshare: PCB-Ansicht auf Seite 2 des
+[Modul-Schaltplans](https://files.waveshare.com/wiki/1.69inch-Touch-LCD-Module/1.69inch_Touch_LCD_Module.pdf),
+für die Dokumentation als PNG gerendert.*
+
+Das Display mit der **Bauteilseite zu dir** halten; die Glasfläche zeigt von
+dir weg. Den 12-poligen Anschluss nach oben drehen. In dieser Ansicht steht
+**VCC links und TP_IRQ rechts**. Aufdruck und Anschluss müssen mit der
+Referenz übereinstimmen. Der untere Flexanschluss H1 gehört zum Display selbst
+und wird nicht für das XIAO-Kabel verwendet.
+
+Vor der Montage benötigen wir ein Foto der tatsächlichen Rückseite samt
+Revision sowie des Kabelsteckers von beiden Seiten und der freien Enden.
+Bei abweichender Platine oder nicht eindeutig erkennbarer Ausrichtung zuerst
+die Zuordnung klären. Die Ansicht des losen Gegensteckers kann gespiegelt sein.
+
+### 3. Kabeladern identifizieren und beschriften
+
+Den passenden Kabelstecker erst nach bestätigter Orientierung ohne Gewalt
+einsetzen. Jede freie Ader stromlos dem zugehörigen P1-Kontakt zuordnen und
+mit dem **Signalnamen** beschriften. Die Zuordnung anhand zugänglicher
+Kontakte/Lötstellen mit der Durchgangsprüfung bestätigen; eng benachbarte
+Kontakte nicht mit der Prüfspitze überbrücken. Unzugängliche Kontakte nicht
+auf Verdacht messen. Keine Signalzuordnung aus einer Kabelfarbe ableiten.
+
+Die Nummern 1–12 bezeichnen die P1-Kontakte der Herstellerunterlagen. Sie
+sind keine Zusage über die Reihenfolge der frei aufgefächerten Kabelenden.
+
+### 4. Versorgung, LCD und Touch verbinden
+
+![ZenTimer-Verbindungsskizze: alle zwölf P1-Signale mit ihren geplanten XIAO-Anschlüssen, einschließlich der vier zusätzlichen Touchleitungen](images/wiring-overview.svg)
+
+*Abbildung 2 — Eigene logische Verbindungsskizze auf Grundlage der unten
+zitierten Pin-Tabelle. Die XIAO-Anschlüsse sind zur Lesbarkeit nach Signalfolge
+angeordnet, nicht nach ihrer tatsächlichen Position auf dem Board.
+Die Linienfarben kennzeichnen Signalgruppen und sind keine Kabelfarben.*
+
+In dieser Reihenfolge montieren und jede Verbindung mit der Tabelle im
+Abschnitt [Vorgeschlagene Zuordnung](#vorgeschlagene-zuordnung) abgleichen:
+
+1. **Versorgung:** P1.1/VCC an XIAO **3V3**, P1.2/GND an **GND**.
+2. **LCD:** P1.3–8 an D10, D8, D9, D7, D3 und D6.
+3. **Touch:** P1.9–12 an D4, D5, D0 und D1.
+
+Bei Lötverbindungen freie Leiter gegeneinander isolieren und das Kabel so
+führen, dass kein Zug auf Stecker oder Lötstellen wirkt. Noch keine Versorgung
+anschließen. Alle zwölf Adern werden benötigt; die in Prospector ungenutzten
+Touch-Adern werden hier ausdrücklich mitgeführt.
+
+### 5. Stromlose Endkontrolle dokumentieren
+
+| Prüfschritt | Erwartetes Ergebnis |
+| --- | --- |
+| VCC-Ader verfolgen | Geht ausschließlich an 3V3 |
+| GND-Ader verfolgen | Geht an XIAO-GND |
+| Jede Signalader einzeln prüfen | Entspricht der Pin-Tabelle; keine vertauschten Adern |
+| Zwischen benachbarten Lötstellen prüfen | Keine unbeabsichtigten Brücken |
+| Versorgung auf Kurzschluss prüfen | Kein dauerhafter niederohmiger Kurzschluss zwischen 3V3 und GND |
+| Kabel und Isolation ansehen | Stecker sitzt, keine blanken losen Leiter oder Zugbelastung |
+
+Kondensatoren können bei der Durchgangsprüfung kurz reagieren; ein einzelner
+Piepton ersetzt keine Bewertung der Messung. Bei unklarer Messung bleibt die
+Versorgung getrennt. Die fertige Verdrahtung mit lesbaren Anschlusspunkten
+fotografieren und die Ergebnisse festhalten.
+
+### 6. Verdrahtung bestätigen, dann separat testen
+
+Hier endet die Anschlussanleitung. **USB und Akku bleiben getrennt, bis die
+Verdrahtung bestätigt und der separate Display-Test vorbereitet ist.** Der
+folgende Test prüft Farbflächen, Umrandung, Text und Touchposition. Ein dunkles
+Display mit der bisherigen Timer-Firmware ist noch kein Verdrahtungsnachweis;
+sie initialisiert das LCD derzeit nicht. Timerkern und Simulator bleiben erhalten.
+
 ## Modul und elektrische Eckdaten
 
 Die Prospector-Stückliste nennt das separate Waveshare **1.69inch Touch LCD

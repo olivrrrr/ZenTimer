@@ -9,6 +9,9 @@ Branch: `feature/timer-core`. Der bisherige Blinktest wurde auf der Hardware
 getestet; diese Timer-Firmware muss nach einem bewussten Upload noch dort
 geprüft werden.
 
+Die [bebilderte Anschlussanleitung für das Waveshare-Touchdisplay](docs/wiring.md#bebilderte-anschlussanleitung)
+zeigt Steckerorientierung, Signalzuordnung und die stromlose Prüfung.
+
 ## Aufbau und Verhalten
 
 - `TimerCore.h`: reine C++-Timerlogik ohne Arduino- oder I/O-Abhängigkeiten.
