@@ -53,17 +53,17 @@ int main() {
   settle();assert(driver.regions==1 && driver.light);
   save(display,geometry,"/tmp/zentimer-ready.ppm");
   const auto count=driver.regions;display.update(timer,clock.now);assert(driver.regions==count);
-  assert(display.pixel(140,226)==0); // empty at 6 o'clock in Ready
+  assert(display.pixel(140,224)==0); // empty at 6 o'clock in Ready
   activateTimer(timer);settle();assert(timer.state()==TimerCore::State::Running);
   clock.now=999;timer.update();settle();assert(timer.remainingSeconds()==120);
   clock.now=1000;timer.update();settle();assert(timer.remainingSeconds()==119);
   clock.now=30000;timer.update();settle();
-  assert(display.pixel(140,226)==TimerDisplay::Orange); // bottom, start
-  assert(display.pixel(34,120)==TimerDisplay::Orange); // left, quarter-turn
-  assert(display.pixel(140,14)==0 && display.pixel(246,120)==0);
+  assert(display.pixel(140,224)==TimerDisplay::Orange); // bottom, start
+  assert(display.pixel(36,120)==TimerDisplay::Orange); // left, quarter-turn
+  assert(display.pixel(140,16)==0 && display.pixel(244,120)==0);
   clock.now=60000;timer.update();settle();
-  assert(display.pixel(140,14)==TimerDisplay::Orange); // halfway: left semicircle
-  assert(display.pixel(246,120)==0); // right still empty
+  assert(display.pixel(140,16)==TimerDisplay::Orange); // halfway: left semicircle
+  assert(display.pixel(244,120)==0); // right still empty
   assert(display.pixel(140,208)==0); // no linear bar beneath the time
   for(int y=227;y<240;++y) for(int x=0;x<280;++x) assert(display.pixel(x,y)==0);
   // Pixel transport and framebuffer agree, including rotated region traversal.
@@ -79,7 +79,7 @@ int main() {
   // Pending pixels must not cause an early completion blink.
   display.update(timer,clock.now);assert(display.busy() && driver.light);
   settle();assert(timer.state()==TimerCore::State::Finished && timer.remainingSeconds()==0);
-  assert(display.pixel(246,120)==TimerDisplay::Orange && !driver.light);
+  assert(display.pixel(244,120)==TimerDisplay::Orange && !driver.light);
   save(display,geometry,"/tmp/zentimer-finished.ppm");
   const std::vector<uint16_t> finalFrame(driver.panel,driver.panel+240*280);
   const auto finalRegions=driver.regions;
@@ -92,7 +92,7 @@ int main() {
   }
   assert(driver.lightWrites.size()==lightCount+5); // exactly three OFF/ON pairs, no restart
   activateTimer(timer);settle();assert(timer.state()==TimerCore::State::Ready);
-  assert(display.pixel(140,226)==0 && display.pixel(246,120)==0 && driver.light);
+  assert(display.pixel(140,224)==0 && display.pixel(244,120)==0 && driver.light);
   // A second session blinks once again; reset during an OFF phase restores light.
   assert(timer.setDuration(1));activateTimer(timer);settle();clock.now+=1000;timer.update();settle();
   assert(!driver.light);activateTimer(timer);display.update(timer,clock.now);assert(driver.light);settle();

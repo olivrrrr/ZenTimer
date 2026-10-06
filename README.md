@@ -16,7 +16,8 @@ zeigt Steckerorientierung, Signalzuordnung und die stromlose Prüfung.
 Der aktuelle [2-Minuten-Präsentations-Build](docs/hardware-demo.md) verwendet
 die getestete Software-SPI-Ansteuerung, Touch und einen orangefarbenen Kreis
 ab 6 Uhr. Im Zustand Ready lässt sich
-die Dauer per vertikalem Swipe zwischen 1 und 60 Minuten einstellen.
+die Dauer über dezente graue Minus-/Plus-Symbole zwischen 1 und 60 Minuten
+einstellen. Große seitliche Touchflächen reagieren schon beim Aufsetzen.
 Dort stehen Build-Befehle, Farbtest und die noch nötigen Hardwareprüfungen.
 
 ## Aufbau und Verhalten

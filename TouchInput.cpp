@@ -20,7 +20,7 @@ bool TouchInput::begin() {
   attachInterrupt(digitalPinToInterrupt(BoardConfig::TouchIrq), touchIsr, FALLING);
   return configured;
 }
-InputAction TouchInput::poll(uint32_t now) {
+InputAction TouchInput::poll(uint32_t now, bool ready) {
   if (uint32_t(now-lastRead_) < 15) return InputAction::None;
   noInterrupts(); const bool pending = pendingIrq; pendingIrq = false; interrupts();
   if (!pending && !gesture_.tracking() && digitalRead(BoardConfig::TouchIrq) == HIGH)
@@ -35,5 +35,15 @@ InputAction TouchInput::poll(uint32_t now) {
   for (uint8_t& value : values) value = Wire.read();
   const int16_t rawX = ((values[1] & 0x0F) << 8) | values[2];
   const int16_t rawY = ((values[3] & 0x0F) << 8) | values[4];
-  return gesture_.sample((values[0] & 0x0F) != 0,rawX,rawY,now);
+  const auto event = gesture_.sample((values[0] & 0x0F) != 0,rawX,rawY,now);
+  if (event == InputAction::TouchDown && ready) {
+    const auto point = gesture_.position();
+    // Full-height side zones: 64 px wide at 280x240; a hold acts only once.
+    const int sideWidth = geometry_.width()*8/35;
+    if (point.x < sideWidth || point.x >= geometry_.width()-sideWidth) {
+      gesture_.discard(); // consume the contact, including its eventual release
+      return point.x < sideWidth ? InputAction::DecreaseDuration : InputAction::IncreaseDuration;
+    }
+  }
+  return event == InputAction::Tap ? event : InputAction::None;
 }

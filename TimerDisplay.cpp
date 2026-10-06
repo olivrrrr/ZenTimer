@@ -3,23 +3,15 @@
 #include <string.h>
 #include <math.h>
 namespace {
-// Compact 5x7 bitmap font. Columns use bit 0 for the top pixel.
-const char glyphs[] = "0123456789: ADEFGHINPRSUY";
-const uint8_t columns[][5] = {
- {0x3e,0x51,0x49,0x45,0x3e},{0,0x42,0x7f,0x40,0},
- {0x42,0x61,0x51,0x49,0x46},{0x21,0x41,0x45,0x4b,0x31},
- {0x18,0x14,0x12,0x7f,0x10},{0x27,0x45,0x45,0x45,0x39},
- {0x3c,0x4a,0x49,0x49,0x30},{1,0x71,9,5,3},
- {0x36,0x49,0x49,0x49,0x36},{6,0x49,0x49,0x29,0x1e},
- {0,0x36,0x36,0,0},{0,0,0,0,0},
- {0x7e,0x11,0x11,0x11,0x7e},{0x7f,0x41,0x41,0x22,0x1c},
- {0x7f,0x49,0x49,0x49,0x41},{0x7f,9,9,9,1},
- {0x3e,0x41,0x49,0x49,0x7a},{0x7f,8,8,8,0x7f},{0,0x41,0x7f,0x41,0},
- {0x7f,2,4,8,0x7f},{0x7f,9,9,9,6},
- {0x7f,9,0x19,0x29,0x46},{0x46,0x49,0x49,0x49,0x31},
- {0x3f,0x40,0x40,0x40,0x3f},{7,8,0x70,8,7}
-};
-static_assert(sizeof(columns)/sizeof(columns[0]) == sizeof(glyphs)-1, "font mismatch");
+constexpr uint16_t CircleSteps = 180; // two-degree increments
+constexpr uint16_t ControlGrey = 0x738E;
+float clampCoverage(float value) { return value < 0 ? 0 : value > 1 ? 1 : value; }
+uint16_t shade(uint16_t color, float coverage) {
+  const uint16_t r = ((color>>11)&31)*coverage+0.5f;
+  const uint16_t g = ((color>>5)&63)*coverage+0.5f;
+  const uint16_t b = (color&31)*coverage+0.5f;
+  return (r<<11)|(g<<5)|b;
+}
 }
 void TimerDisplay::setPixel(int16_t x, int16_t y, uint16_t color) {
   if (x < 0 || y < 0 || x >= geometry_.width() || y >= geometry_.height()) return;
@@ -34,15 +26,53 @@ void TimerDisplay::fill(Rect rect, uint16_t color) {
   for (int16_t y = rect.y; y < rect.y+rect.h; ++y)
     for (int16_t x = rect.x; x < rect.x+rect.w; ++x) setPixel(x,y,color);
 }
-void TimerDisplay::text(const char* value, int16_t x, int16_t y, uint8_t scale) {
-  for (; *value; ++value, x += 6 * scale) {
-    const char* match = strchr(glyphs,*value);
-    if (!match) continue;
-    const auto& bits = columns[match-glyphs];
-    for (uint8_t col = 0; col < 5; ++col)
-      for (uint8_t row = 0; row < 7; ++row)
-        if (bits[col] & (1 << row)) fill({int16_t(x+col*scale),int16_t(y+row*scale),scale,scale},0xFFFF);
+void TimerDisplay::stroke(float x0, float y0, float x1, float y1, float thickness, uint16_t color) {
+  const float padding = thickness/2+1;
+  const int xMin = floorf(fminf(x0,x1)-padding), xMax = ceilf(fmaxf(x0,x1)+padding);
+  const int yMin = floorf(fminf(y0,y1)-padding), yMax = ceilf(fmaxf(y0,y1)+padding);
+  const float dx = x1-x0, dy = y1-y0, lengthSquared = dx*dx+dy*dy;
+  for (int y=yMin; y<=yMax; ++y) for (int x=xMin; x<=xMax; ++x) {
+    const float t = lengthSquared ? clampCoverage(((x-x0)*dx+(y-y0)*dy)/lengthSquared) : 0;
+    const float px = x-x0-t*dx, py = y-y0-t*dy;
+    const float coverage = clampCoverage(thickness/2+0.5f-sqrtf(px*px+py*py));
+    if (!coverage || x<0 || y<0 || x>=geometry_.width() || y>=geometry_.height()) continue;
+    const uint16_t ink = shade(color,coverage), old = pixel(x,y);
+    // Joined strokes retain the stronger coverage instead of darkening their joins.
+    if (ink > old) setPixel(x,y,ink);
   }
+}
+void TimerDisplay::timeText(const char* value, int16_t maxWidth) {
+  const uint8_t masks[] = {0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F};
+  const float segments[7][4] = {{5,2,23,2},{26,6,26,22},{26,30,26,46},
+      {5,50,23,50},{2,30,2,46},{2,6,2,22},{5,26,23,26}};
+  float length = -6;
+  for (const char* p=value; *p; ++p) length += (*p==':' ? 8 : 28)+6;
+  const float scale = fminf(1.0f,maxWidth/length);
+  float x = (geometry_.width()-length*scale)/2;
+  const float y = (geometry_.height()-54*scale)/2;
+  for (; *value; ++value) {
+    if (*value==':') {
+      stroke(x+4*scale,y+18*scale,x+4*scale,y+18*scale,4*scale,0xFFFF);
+      stroke(x+4*scale,y+36*scale,x+4*scale,y+36*scale,4*scale,0xFFFF);
+      x += 14*scale;
+    } else {
+      if (*value>='0' && *value<='9') for (uint8_t i=0;i<7;++i) {
+        if (!(masks[*value-'0'] & (1<<i))) continue;
+        stroke(x+segments[i][0]*scale,y+segments[i][1]*scale,
+               x+segments[i][2]*scale,y+segments[i][3]*scale,3.2f*scale,0xFFFF);
+      }
+      x += 34*scale;
+    }
+  }
+}
+void TimerDisplay::controls(bool visible) {
+  const int16_t width = geometry_.width(), cy = geometry_.height()/2;
+  fill({4,int16_t(cy-16),28,32},0);
+  fill({int16_t(width-32),int16_t(cy-16),28,32},0);
+  if (!visible) return;
+  stroke(10,cy,26,cy,2.5f,ControlGrey);
+  stroke(width-26,cy,width-10,cy,2.5f,ControlGrey);
+  stroke(width-18,cy-8,width-18,cy+8,2.5f,ControlGrey);
 }
 void TimerDisplay::queue(Rect rect) {
   const auto a = geometry_.screenToNative(rect.x,rect.y);
@@ -52,29 +82,36 @@ void TimerDisplay::queue(Rect rect) {
 }
 bool TimerDisplay::circle(uint16_t steps, Rect& changed) {
   const int16_t cx = geometry_.width()/2, cy = geometry_.height()/2;
-  const int16_t radius = (geometry_.width()<geometry_.height()?geometry_.width():geometry_.height())/2-14;
-  const int inner = radius-4;
+  const int16_t radius = (geometry_.width()<geometry_.height()?geometry_.width():geometry_.height())/2-16;
   int16_t xMin = geometry_.width(), yMin = geometry_.height(), xMax = -1, yMax = -1;
   constexpr float Tau = 6.28318530718f;
-  for (int16_t dy = -radius; dy <= radius; ++dy) {
-    for (int16_t dx = -radius; dx <= radius; ++dx) {
-      const int distance = dx*dx+dy*dy;
-      if (distance < inner*inner || distance > radius*radius) continue;
-      // Logical y grows downwards: bottom -> left -> top -> right is clockwise.
+  const float sweep = float(steps)*Tau/CircleSteps;
+  const float endX = -radius*sinf(sweep), endY = radius*cosf(sweep);
+  for (int16_t dy=-radius-3; dy<=radius+3; ++dy) for (int16_t dx=-radius-3; dx<=radius+3; ++dx) {
+    const float distance = sqrtf(float(dx*dx+dy*dy));
+    if (fabsf(distance-radius)>3) continue;
+    float coverage = 0;
+    if (steps) {
       float angle = atan2f(-dx,dy);
-      if (angle < 0) angle += Tau;
-      const uint16_t color = steps && (steps == 72 || angle <= steps*Tau/72) ? Orange : 0;
-      const int16_t x = cx+dx, y = cy+dy;
-      if (pixel(x,y) == color) continue;
-      setPixel(x,y,color);
-      if (x < xMin) xMin = x;
-      if (x > xMax) xMax = x;
-      if (y < yMin) yMin = y;
-      if (y > yMax) yMax = y;
+      if (angle<0) angle+=Tau;
+      if (steps==CircleSteps || angle<=sweep) coverage=clampCoverage(2.0f-fabsf(distance-radius));
+      if (steps<CircleSteps) {
+        const float startDistance=sqrtf(float(dx*dx+(dy-radius)*(dy-radius)));
+        const float endDistance=sqrtf((dx-endX)*(dx-endX)+(dy-endY)*(dy-endY));
+        coverage=fmaxf(coverage,clampCoverage(2.0f-fminf(startDistance,endDistance)));
+      }
     }
+    const uint16_t color=shade(Orange,coverage);
+    const int16_t x=cx+dx,y=cy+dy;
+    if (pixel(x,y)==color) continue;
+    setPixel(x,y,color);
+    if (x<xMin) xMin=x;
+    if (x>xMax) xMax=x;
+    if (y<yMin) yMin=y;
+    if (y>yMax) yMax=y;
   }
-  if (xMax < 0) return false;
-  changed = {xMin,yMin,int16_t(xMax-xMin+1),int16_t(yMax-yMin+1)};
+  if (xMax<0) return false;
+  changed={xMin,yMin,int16_t(xMax-xMin+1),int16_t(yMax-yMin+1)};
   return true;
 }
 void TimerDisplay::setLight(bool on) {
@@ -97,26 +134,26 @@ void TimerDisplay::update(const TimerCore& timer, uint32_t now) {
   updateBacklight(timer,now);
   if (busy()) { pump(); updateBacklight(timer,now); return; }
   const uint32_t seconds = timer.remainingSeconds();
-  const uint16_t steps = uint64_t(timer.durationMilliseconds()-timer.remainingMilliseconds())*72/timer.durationMilliseconds();
+  const uint16_t steps = uint64_t(timer.durationMilliseconds()-timer.remainingMilliseconds())*CircleSteps/timer.durationMilliseconds();
   const bool timeChanged = first_ || seconds != seconds_;
   const bool circleChanged = first_ || steps != circleSteps_;
-  if (!timeChanged && !circleChanged) {
+  const bool controlsChanged = first_ || (timer.state()==TimerCore::State::Ready) != (state_==TimerCore::State::Ready);
+  if (!timeChanged && !circleChanged && !controlsChanged) {
     state_ = timer.state(); updateBacklight(timer,now); return;
   }
   jobIndex_ = jobCount_ = 0; offset_ = 0;
   if (first_) for (uint16_t& pixel : frame_) pixel = 0;
   const int16_t width = geometry_.width(), height = geometry_.height();
-  const int16_t radius = (width<height?width:height)/2-14;
+  const int16_t radius = (width<height?width:height)/2-16;
   const int16_t maxTextWidth = 2*(radius-4-12);
-  const Rect timeArea = {int16_t((width-maxTextWidth)/2-2),int16_t(height/2-25),int16_t(maxTextWidth+4),50};
+  const Rect timeArea = {int16_t((width-maxTextWidth)/2-2),int16_t(height/2-29),int16_t(maxTextWidth+4),58};
   if (timeChanged) {
     char value[12];
     snprintf(value,sizeof(value),"%02lu:%02lu",static_cast<unsigned long>(seconds/60),static_cast<unsigned long>(seconds%60));
     fill(timeArea,0);
-    uint8_t scale = 6;
-    while ((strlen(value)*6-1)*scale > uint16_t(maxTextWidth) && scale > 1) --scale;
-    text(value,(width-(strlen(value)*6-1)*scale)/2,(height-7*scale)/2,scale);
+    timeText(value,maxTextWidth);
   }
+  if (controlsChanged) controls(timer.state()==TimerCore::State::Ready);
   Rect arcArea = {};
   const bool arcChanged = circleChanged && circle(steps,arcArea);
   if (first_) queue({0,0,width,height});
@@ -126,6 +163,10 @@ void TimerDisplay::update(const TimerCore& timer, uint32_t now) {
       arcArea.x+arcArea.w >= timeArea.x+timeArea.w && arcArea.y+arcArea.h >= timeArea.y+timeArea.h;
     if (timeChanged && !arcContainsTime) queue(timeArea);
     if (arcChanged) queue(arcArea);
+    if (controlsChanged) {
+      queue({4,int16_t(height/2-16),28,32});
+      queue({int16_t(width-32),int16_t(height/2-16),28,32});
+    }
   }
   first_ = false; state_ = timer.state(); seconds_ = seconds; circleSteps_ = steps;
   pump(); updateBacklight(timer,now);

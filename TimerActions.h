@@ -15,8 +15,9 @@ inline void activateTimer(TimerCore& timer) {
 inline void applyTimerAction(TimerCore& timer, InputAction action) {
   if (action == InputAction::Tap) { activateTimer(timer); return; }
   if (timer.state() != TimerCore::State::Ready ||
-      (action != InputAction::SwipeUp && action != InputAction::SwipeDown)) return;
-  int32_t seconds = static_cast<int32_t>(timer.durationSeconds()) + (action == InputAction::SwipeUp ? 60 : -60);
+      (action != InputAction::SwipeUp && action != InputAction::SwipeDown &&
+       action != InputAction::IncreaseDuration && action != InputAction::DecreaseDuration)) return;
+  int32_t seconds = static_cast<int32_t>(timer.durationSeconds()) + ((action == InputAction::SwipeUp || action == InputAction::IncreaseDuration) ? 60 : -60);
   if (seconds < 60) seconds = 60;
   if (seconds > 3600) seconds = 3600;
   timer.setDuration(seconds);

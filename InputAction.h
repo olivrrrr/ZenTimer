@@ -1,3 +1,3 @@
 #pragma once
 
-enum class InputAction { None, Tap, SwipeUp, SwipeDown };
+enum class InputAction { None, TouchDown, Tap, SwipeUp, SwipeDown, DecreaseDuration, IncreaseDuration };

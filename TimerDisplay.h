@@ -12,11 +12,13 @@ class TimerDisplay {
   void showColor(uint16_t color);
   bool busy() const { return jobIndex_ < jobCount_; }
   uint16_t pixel(int16_t x, int16_t y) const;
-  static constexpr uint16_t Orange = 0xFC60;
+  static constexpr uint16_t Orange = 0xFC66;
  private:
   struct Rect { int16_t x, y, w, h; };
   void fill(Rect rect, uint16_t color);
-  void text(const char* text, int16_t x, int16_t y, uint8_t scale);
+  void timeText(const char* text, int16_t maxWidth);
+  void stroke(float x0, float y0, float x1, float y1, float thickness, uint16_t color);
+  void controls(bool visible);
   void queue(Rect rect);
   bool circle(uint16_t steps, Rect& changed);
   void updateBacklight(const TimerCore& timer, uint32_t now);
@@ -25,7 +27,7 @@ class TimerDisplay {
   DisplayDriver& driver_;
   const ScreenGeometry& geometry_;
   uint16_t frame_[240 * 280] = {};
-  Rect jobs_[3] = {};
+  Rect jobs_[4] = {};
   uint8_t jobIndex_ = 0, jobCount_ = 0;
   uint32_t offset_ = 0;
   bool first_ = true;

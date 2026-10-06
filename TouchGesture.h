@@ -2,7 +2,7 @@
 #include "ScreenGeometry.h"
 #include "InputAction.h"
 
-// One action per contact, on release; all distances use logical screen pixels.
+// Contact-down event plus release classification; positions use logical pixels.
 class TouchGesture {
  public:
   explicit TouchGesture(const ScreenGeometry& geometry) : geometry_(geometry) {}
@@ -18,6 +18,7 @@ class TouchGesture {
       if (uint32_t(now-started_) <= 500 && maxDistanceSquared_ <= 14*14) return InputAction::Tap;
       return InputAction::None;
     }
+    const bool newContact = !tracking_;
     ScreenGeometry::Point point;
     const bool valid = geometry_.nativeToScreen(rawX,rawY,point);
     if (!tracking_) {
@@ -30,7 +31,7 @@ class TouchGesture {
       const uint32_t distance = dx*dx + dy*dy;
       if (distance > maxDistanceSquared_) maxDistanceSquared_ = distance;
     }
-    return InputAction::None;
+    return newContact && valid && !invalid_ ? InputAction::TouchDown : InputAction::None;
   }
   void discard() { invalid_ = true; } // failed reads must not synthesize a release
   bool tracking() const { return tracking_; }
