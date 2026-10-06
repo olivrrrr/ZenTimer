@@ -15,6 +15,8 @@ class TimerDisplay {
   static constexpr uint16_t Orange = 0xFC66;
  private:
   struct Rect { int16_t x, y, w, h; };
+  uint16_t backgroundPixel(int16_t x, int16_t y) const;
+  void restoreBackground(Rect rect);
   void fill(Rect rect, uint16_t color);
   void timeText(const char* text, int16_t maxWidth);
   void stroke(float x0, float y0, float x1, float y1, float thickness, uint16_t color);

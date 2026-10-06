@@ -52,6 +52,10 @@ int main() {
   auto settle = [&]() { display.update(timer,clock.now); while(display.busy()) display.update(timer,clock.now); };
   settle();assert(driver.regions==1 && driver.light);
   save(display,geometry,"/tmp/zentimer-ready.ppm");
+  const uint16_t backgroundBelowTime = display.pixel(140,208);
+  const uint16_t backgroundCorner = display.pixel(0,0);
+  std::vector<uint16_t> bottom;
+  for(int y=229;y<240;++y) for(int x=0;x<280;++x) bottom.push_back(display.pixel(x,y));
   const auto count=driver.regions;display.update(timer,clock.now);assert(driver.regions==count);
   assert(display.pixel(140,224)>0 && display.pixel(140,224)<TimerDisplay::Orange); // dim base ring in Ready
   activateTimer(timer);settle();assert(timer.state()==TimerCore::State::Running);
@@ -65,8 +69,8 @@ int main() {
   clock.now=60000;timer.update();settle();
   assert(display.pixel(140,16)==TimerDisplay::Orange); // halfway: left semicircle
   assert(display.pixel(244,120)>0 && display.pixel(244,120)<TimerDisplay::Orange); // right shows only the base ring
-  assert(display.pixel(140,208)==0); // no linear bar beneath the time
-  for(int y=229;y<240;++y) for(int x=0;x<280;++x) assert(display.pixel(x,y)==0);
+  assert(display.pixel(140,208)==backgroundBelowTime); // no linear bar beneath the time
+  for(int y=229;y<240;++y) for(int x=0;x<280;++x) assert(display.pixel(x,y)==bottom[(y-229)*280+x]);
   // Pixel transport and framebuffer agree, including rotated region traversal.
   for(int y=0;y<geometry.height();++y) for(int x=0;x<geometry.width();++x) {
     const auto n=geometry.screenToNative(x,y);
@@ -99,5 +103,5 @@ int main() {
   assert(!driver.light);activateTimer(timer);display.update(timer,clock.now);assert(driver.light);settle();
   assert(timer.setDuration(86400));settle(); // longer Serial durations still fit inside the circle
   display.showColor(0xF800);drain(display);for(uint16_t p:driver.panel) assert(p==0xF800);
-  settle();assert(display.pixel(0,0)==0);
+  settle();assert(display.pixel(0,0)==backgroundCorner);
 }

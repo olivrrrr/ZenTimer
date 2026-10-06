@@ -22,7 +22,7 @@ setzt 20 Minuten. Der TimerCore- und Simulator-Standard bleibt bei 10 Minuten.
 
 ## Bedienung und Anzeige
 
-Nach dem ersten Bildaufbau steht `20:00` mittig auf Schwarz. In Ready sind
+Nach dem ersten Bildaufbau steht `20:00` mittig auf einem dezenten Steinmotiv. In Ready sind
 links ein dezentes graues Minus und rechts ein Plus sichtbar. Außerhalb von
 Ready verschwinden beide. Zustandslabels und Menüs bleiben ausgeblendet.
 
@@ -47,7 +47,7 @@ Bogenenden. Die Zeit verwendet geglättete Roboto-Ziffern mit gleich breiten Zif
 mit Abstand innerhalb des Kreises. Auf dem aktuellen logischen 280 × 240
 Bild beträgt der Radius der Strichmitte 104 Pixel, die Strichbreite ungefähr
 6 Pixel mit geglätteten Randpixeln, also etwa 3 Pixel breiter als zuvor.
-Ein vollständiger Ring in verblasstem Orange (38 % Helligkeit) liegt dauerhaft
+Ein vollständiger Ring in verblasstem Orange (18 % Deckkraft) liegt dauerhaft
 unter dem hellen Fortschrittsbogen; er ist auch in Ready sichtbar. Der Orangeton ist etwas wärmer.
 Dies ist ein geometrischer Zwischenstand, kein nachgezeichneter Ensō.
 
@@ -65,11 +65,34 @@ neu. Ein Tap zurück auf Ready beendet eine laufende Blinkfolge und schaltet
 wieder auf dauerhaft an. `CompletionBlink` verwendet unsigned Zeitdifferenzen,
 kein `delay()` und keine TimerCore-Änderung.
 
+## Statisches Steinmotiv
+
+Stand 07.10.2026: Arduino-Build erfolgreich (211152 Byte Flash / 142308 Byte
+RAM) und auf `/dev/cu.usbmodem2401` geflasht, bestätigt durch „Device programmed.“
+Lokale Tests wurden wie zuvor gewünscht nicht ausgeführt.
+
+![Dunkle Flusssteine als statischer Timerhintergrund](../assets/backgrounds/stones-lcd.png)
+
+Das Motiv wurde mit dem integrierten Bildgenerierungstool erstellt; der
+[exakte Prompt und die Assetpfade](../assets/backgrounds/PROMPT.md) liegen im
+Repo. Es wird als 280 × 240 RGB565-Bild im Flash gespeichert (134400 Byte),
+ohne zusätzlichen RAM-Framebuffer. Der Renderer dimmt es auf 60 % und legt
+Ziffern, Symbole und Kreis mit Deckkraft darüber. Unter geänderten Inhalten
+wird das statische Bild wiederhergestellt, keine schwarzen Löschrechtecke.
+Der Hintergrundring ist wieder auf die vorherigen 18 % Deckkraft zurückgestellt.
+
+Zum erneuten Konvertieren mit Python und Pillow:
+
+```sh
+python3 tools/generate_stone_background.py
+```
+
 ## Doppeltipp zum Abbrechen
 
-Stand 07.10.2026: Doppeltipp und der stärker orangefarbene Hintergrundring
+Stand 07.10.2026: Doppeltipp und der orangefarbene Hintergrundring
 sind lokal implementiert und erfolgreich kompiliert (76160 Byte Flash /
-142308 Byte RAM). Der Upload dieses Zwischenstands wurde zunächst nicht freigegeben.
+142308 Byte RAM). Der Upload dieses Zwischenstands wurde zunächst nicht freigegeben; der
+nachfolgende 20-Minuten-Build wurde anschließend erfolgreich geflasht.
 Lokale Tests wurden weiterhin nicht ausgeführt.
 
 In Running und Paused werden zwei kurze Taps innerhalb von 400 ms und mit

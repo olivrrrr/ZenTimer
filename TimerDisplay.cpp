@@ -3,9 +3,16 @@
 #include <string.h>
 #include <math.h>
 #include "hardware/TimerFont.h"
+#include "hardware/StoneBackground.h"
 namespace {
 constexpr uint16_t CircleSteps = 180; // two-degree increments
 constexpr uint16_t ControlGrey = 0x738E;
+uint16_t blend(uint16_t foreground, uint16_t background, float alpha) {
+  const uint16_t r = ((foreground>>11)&31)*alpha + ((background>>11)&31)*(1-alpha)+0.5f;
+  const uint16_t g = ((foreground>>5)&63)*alpha + ((background>>5)&63)*(1-alpha)+0.5f;
+  const uint16_t b = (foreground&31)*alpha + (background&31)*(1-alpha)+0.5f;
+  return (r<<11)|(g<<5)|b;
+}
 float clampCoverage(float value) { return value < 0 ? 0 : value > 1 ? 1 : value; }
 uint16_t shade(uint16_t color, float coverage) {
   const uint16_t r = ((color>>11)&31)*coverage+0.5f;
@@ -23,6 +30,16 @@ uint16_t TimerDisplay::pixel(int16_t x, int16_t y) const {
   const auto native = geometry_.screenToNative(x,y);
   return frame_[native.y * 240 + native.x];
 }
+uint16_t TimerDisplay::backgroundPixel(int16_t x, int16_t y) const {
+  const int sx = x*StoneBackground::Width/geometry_.width();
+  const int sy = y*StoneBackground::Height/geometry_.height();
+  // Dim the photo for reliable contrast; the master asset remains unaltered.
+  return shade(StoneBackground::Pixels[sy*StoneBackground::Width+sx],0.60f);
+}
+void TimerDisplay::restoreBackground(Rect rect) {
+  for (int16_t y=rect.y; y<rect.y+rect.h; ++y)
+    for (int16_t x=rect.x; x<rect.x+rect.w; ++x) setPixel(x,y,backgroundPixel(x,y));
+}
 void TimerDisplay::fill(Rect rect, uint16_t color) {
   for (int16_t y = rect.y; y < rect.y+rect.h; ++y)
     for (int16_t x = rect.x; x < rect.x+rect.w; ++x) setPixel(x,y,color);
@@ -37,7 +54,7 @@ void TimerDisplay::stroke(float x0, float y0, float x1, float y1, float thicknes
     const float px = x-x0-t*dx, py = y-y0-t*dy;
     const float coverage = clampCoverage(thickness/2+0.5f-sqrtf(px*px+py*py));
     if (!coverage || x<0 || y<0 || x>=geometry_.width() || y>=geometry_.height()) continue;
-    const uint16_t ink = shade(color,coverage), old = pixel(x,y);
+    const uint16_t ink = blend(color,backgroundPixel(x,y),coverage), old = pixel(x,y);
     // Joined strokes retain the stronger coverage instead of darkening their joins.
     if (ink > old) setPixel(x,y,ink);
   }
@@ -59,15 +76,15 @@ void TimerDisplay::timeText(const char* value, int16_t maxWidth) {
         const int index = int(y/scale)*width+int(x/scale);
         const uint8_t packed = TimerFont::Coverage[TimerFont::Offsets[glyph]+index/2];
         const uint8_t alpha = index&1 ? packed&15 : packed>>4;
-        if (alpha) setPixel(xStart+x,yStart+y,shade(0xFFFF,alpha/15.0f));
+        if (alpha) setPixel(xStart+x,yStart+y,blend(0xFFFF,backgroundPixel(xStart+x,yStart+y),alpha/15.0f));
       }
     pen += (width+TimerFont::Gap)*scale;
   }
 }
 void TimerDisplay::controls(bool visible) {
   const int16_t width = geometry_.width(), cy = geometry_.height()/2;
-  fill({4,int16_t(cy-16),28,32},0);
-  fill({int16_t(width-32),int16_t(cy-16),28,32},0);
+  restoreBackground({4,int16_t(cy-16),28,32});
+  restoreBackground({int16_t(width-32),int16_t(cy-16),28,32});
   if (!visible) return;
   stroke(10,cy,26,cy,2.5f,ControlGrey);
   stroke(width-26,cy,width-10,cy,2.5f,ControlGrey);
@@ -101,8 +118,8 @@ bool TimerDisplay::circle(uint16_t steps, Rect& changed) {
         coverage=fmaxf(coverage,clampCoverage(3.5f-fminf(startDistance,endDistance)));
       }
     }
-    const float brightness = 0.38f*trackCoverage + 0.62f*coverage;
-    const uint16_t color=shade(Orange,brightness);
+    const float brightness = 0.18f*trackCoverage + 0.82f*coverage;
+    const uint16_t color=blend(Orange,backgroundPixel(cx+dx,cy+dy),brightness);
     const int16_t x=cx+dx,y=cy+dy;
     if (pixel(x,y)==color) continue;
     setPixel(x,y,color);
@@ -143,7 +160,7 @@ void TimerDisplay::update(const TimerCore& timer, uint32_t now) {
     state_ = timer.state(); updateBacklight(timer,now); return;
   }
   jobIndex_ = jobCount_ = 0; offset_ = 0;
-  if (first_) for (uint16_t& pixel : frame_) pixel = 0;
+  if (first_) restoreBackground({0,0,geometry_.width(),geometry_.height()});
   const int16_t width = geometry_.width(), height = geometry_.height();
   const int16_t radius = (width<height?width:height)/2-16;
   const int16_t maxTextWidth = 2*(radius-4-12);
@@ -151,7 +168,7 @@ void TimerDisplay::update(const TimerCore& timer, uint32_t now) {
   if (timeChanged) {
     char value[12];
     snprintf(value,sizeof(value),"%02lu:%02lu",static_cast<unsigned long>(seconds/60),static_cast<unsigned long>(seconds%60));
-    fill(timeArea,0);
+    restoreBackground(timeArea);
     timeText(value,maxTextWidth);
   }
   if (controlsChanged) controls(timer.state()==TimerCore::State::Ready);
