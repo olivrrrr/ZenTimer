@@ -1,6 +1,6 @@
 # Anschlussplan: Waveshare 1.69″ Touch LCD → XIAO nRF52840
 
-Stand: 06.10.2026, Branch `feature/timer-core`. **Hardwarebelegung durch den Projekt-Handoff bestätigt.**
+Stand: 06.10.2026, Branch `feature/timer-core`. **Hardwarebelegung im Projekt bestätigt.**
 LCD-Farbflächen und CST816S-Touch funktionieren laut Hardwaretest.
 Wichtig: Gegenüber dem ursprünglichen Entwurf sind **TP_IRQ → D0** und
 **TP_RST → D1** korrigiert. Die neue Timer-UI mit Kreis und Wischgesten ist geflasht; ihre vollständige
@@ -218,7 +218,7 @@ Für ZenTimer ergibt sich folgendes Pinbudget; dies sind Planungsvorschläge:
 
 ## Hardwarestand und weitere Prüfung
 
-Der Hardware-Handoff bestätigt ST7789V2, 240 × 280, Y-Offset +20 und
+Die bestätigte Hardware verwendet ST7789V2, 240 × 280, Y-Offset +20 und
 CST816S an 0x15 mit IRQ D0 / Reset D1. Die bisherige Testorientierung passt
 noch nicht zur physischen Aufstellung. Die zentrale Drehung des neuen Builds
 und die Zuordnung der Touchkoordinaten müssen am Gerät geprüft werden.

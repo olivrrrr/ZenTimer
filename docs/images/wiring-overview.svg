@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1030" viewBox="0 0 1200 1030" role="img" aria-labelledby="title desc">
 <title id="title">ZenTimer: geplanter Anschluss von LCD und Touch an XIAO nRF52840</title>
-<desc id="desc">Logische Verbindungsskizze der zwölf Displaykontakte. Die Pinpositionen am XIAO sind nicht maßstäblich und stellen keine physische Padreihenfolge dar. Farben unterscheiden Signalgruppen und sind keine Kabelfarben. Belegung laut Hardware-Handoff bestätigt.</desc>
+<desc id="desc">Logische Verbindungsskizze der zwölf Displaykontakte. Die Pinpositionen am XIAO sind nicht maßstäblich und stellen keine physische Padreihenfolge dar. Farben unterscheiden Signalgruppen und sind keine Kabelfarben. Belegung im Projekt bestätigt.</desc>
 <rect width="1200" height="1030" rx="20" fill="#f8fafc"/>
 <g font-family="Arial, Helvetica, sans-serif" fill="#172033">
 <text x="52" y="57" font-size="30" font-weight="700">ZenTimer · LCD + Touch anschließen</text>

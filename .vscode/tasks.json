@@ -4,19 +4,12 @@
     {
       "label": "ZenTimer: Build",
       "type": "shell",
-      "command": "arduino-cli",
+      "command": "sh",
       "args": [
-        "compile",
-        "--fqbn",
-        "Seeeduino:nrf52:xiaonRF52840Sense",
-        "--build-path",
-        "${workspaceFolder}/build/arduino",
-        "${workspaceFolder}"
+        "${workspaceFolder}/build.sh"
       ],
       "options": {
-        "env": {
-          "PATH": "${env:HOME}/.local/bin:${env:PATH}"
-        }
+        "cwd": "${workspaceFolder}"
       },
       "group": {
         "kind": "build",

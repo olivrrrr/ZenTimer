@@ -1,8 +1,8 @@
 # ZenTimer: 20-Minuten-Präsentations-Build
 
-Branch `feature/timer-core`. Der erste integrierte Build wurde auf das Gerät geladen und vom Nutzer
-getestet. LCD, CST816S-Touch und kontinuierliche Drag-Koordinaten sind laut
-neuem Hardware-Handoff bestätigt. **Die hier dokumentierte Folgeversion mit
+Branch `feature/timer-core`. Der erste integrierte Build wurde auf das Gerät geladen und
+auf der Hardware getestet. LCD, CST816S-Touch und kontinuierliche Drag-Koordinaten
+sind bestätigt. **Die hier dokumentierte Folgeversion mit
 Roboto-Ziffern, breitem Kreis, Minus/Plus und Abschlussblinken ist kompiliert, lokal getestet und am
 06.10.2026 auf `/dev/cu.usbmodem2401` geflasht. Der Uploader bestätigte
 „Device programmed.“ Auch die aktuelle Version mit Roboto, breiterem Ring und 8-MHz-SPI wurde
@@ -14,7 +14,7 @@ bleibt unverändert; der Mac-Simulator verwendet weiterhin denselben Timerkern.
 
 *Ältere Vorschau aus dem C++-Renderingtest, kein Hardwarefoto. Die aktuelle
 Version verwendet Roboto-Ziffern und einen breiteren geglätteten Bogen; in Ready
-kommen graue Minus-/Plus-Symbole hinzu. Für diese Änderung wurden auf Wunsch
+kommen graue Minus-/Plus-Symbole hinzu. Für diese Änderung wurden
 keine lokalen Tests oder neuen Vorschau-Renderings ausgeführt.*
 
 Die Geräte-Startdauer steht in `ZenTimer.ino`: `timer.setDuration(1200)`
@@ -69,13 +69,14 @@ kein `delay()` und keine TimerCore-Änderung.
 
 Stand 07.10.2026: Arduino-Build erfolgreich (211152 Byte Flash / 142308 Byte
 RAM) und auf `/dev/cu.usbmodem2401` geflasht, bestätigt durch „Device programmed.“
-Lokale Tests wurden wie zuvor gewünscht nicht ausgeführt.
+Lokale Tests wurden für diese Änderung nicht ausgeführt.
 
 ![Dunkle Flusssteine als statischer Timerhintergrund](../assets/backgrounds/stones-lcd.png)
 
-Das Motiv wurde mit dem integrierten Bildgenerierungstool erstellt; der
-[exakte Prompt und die Assetpfade](../assets/backgrounds/PROMPT.md) liegen im
-Repo. Es wird als 280 × 240 RGB565-Bild im Flash gespeichert (134400 Byte),
+Das Steinmotiv ist KI-generiert. Das Ausgangsbild liegt unter
+`assets/backgrounds/stones-source.png`, die Displayfassung unter
+`assets/backgrounds/stones-lcd.png`. Es wird als 280 × 240 RGB565-Bild im Flash
+gespeichert (134400 Byte),
 ohne zusätzlichen RAM-Framebuffer. Der Renderer dimmt es auf 60 % und legt
 Ziffern, Symbole und Kreis mit Deckkraft darüber. Unter geänderten Inhalten
 wird das statische Bild wiederhergestellt, keine schwarzen Löschrechtecke.
@@ -238,7 +239,7 @@ OFF/ON-Paare, unveränderte Pixel während des Blinkens, kein erneutes Starten
 in Finished und Abbruch der Blinkfolge beim Reset.
 
 Die bisherigen Testergebnisse beziehen sich auf frühere UI-Stände. Für die
-aktuelle Änderung werden auf ausdrücklichen Wunsch keine lokalen Unit-Tests
+aktuelle Änderung werden keine lokalen Unit-Tests
 oder Renderingtests ausgeführt; geprüft wird die Arduino-Kompilierung für den
 normalen Build und die Software-SPI-Rückfalloption. Beide bauen erfolgreich:
 8-MHz-Build 75896 Byte Flash / 142296 Byte RAM; Software-SPI-Build 75160 Byte

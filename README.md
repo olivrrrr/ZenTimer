@@ -116,6 +116,16 @@ pausiert und beendet erzeugen keine regelmäßigen Ausgaben.
 
 ## Build und Monitor (macOS)
 
+Schnellstart im Projektverzeichnis, ohne angeschlossenes Gerät:
+
+```sh
+./build.sh
+```
+
+Das Skript setzt den Python-PATH und kompiliert nach `build/arduino`; es flasht
+nichts. Alternativ in VS Code **Run Build Task → ZenTimer: Build**.
+
+
 Verwendete Umgebung: Arduino CLI 1.5.1, Seeeduino:nrf52 Core 1.1.13,
 Python 3.13.7. `~/.local/bin/python` verweist auf Python; dieser Ordner muss
 für den Build im PATH sein. Sketchordner und Hauptdatei heißen `ZenTimer` bzw.
@@ -220,7 +230,7 @@ Er prüft die Bedienelemente und rendert eine Halbzeit-Vorschau des Kreisbogens 
 ## Spätere Erweiterungen
 
 Waveshare 1,69-Zoll-Touch-LCD und CST816S-Touch sind angeschlossen und laut
-Hardware-Handoff einzeln getestet. Der neue Präsentations-Build verbindet sie
+Hardwaretests einzeln bestätigt. Der neue Präsentations-Build verbindet sie
 mit dem Timerkern und ist geflasht; die vollständige Hardwareabnahme ist noch
 nicht dokumentiert. Proximity-Sensor
 und LiPo sind vorhanden; genaue Varianten sind noch offen. Audio, Sensorsteuerung,
