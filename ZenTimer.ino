@@ -1,14 +1,18 @@
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>
+#include "TimerCore.h"
+#include "SerialConsole.h"
 
-void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-}
-
+class ArduinoTimeSource : public TimeSource {
+ public:
+  uint32_t nowMs() override { return millis(); }
+};
+ArduinoTimeSource clockSource;
+TimerCore timer(clockSource);
+SerialConsole console(timer);
+void setup() { Serial.begin(115200); }
 void loop() {
-  digitalWrite(LED_BUILTIN, LOW);   // LED an
-  delay(500);
-
-  digitalWrite(LED_BUILTIN, HIGH);  // LED aus
-  delay(500);
+  const uint32_t now = millis();
+  timer.update();
+  console.update(now);
 }

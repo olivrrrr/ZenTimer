@@ -1,0 +1,80 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ZenTimer: Build",
+      "type": "shell",
+      "command": "arduino-cli",
+      "args": [
+        "compile",
+        "--fqbn",
+        "Seeeduino:nrf52:xiaonRF52840Sense",
+        "--build-path",
+        "${workspaceFolder}/build/arduino",
+        "${workspaceFolder}"
+      ],
+      "options": {
+        "env": {
+          "PATH": "${env:HOME}/.local/bin:${env:PATH}"
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$gcc"
+    },
+    {
+      "label": "ZenTimer: Serial Monitor",
+      "type": "shell",
+      "command": "arduino-cli",
+      "args": [
+        "monitor",
+        "--port",
+        "${input:serialPort}",
+        "--config",
+        "baudrate=115200"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "ZenTimer: USB Ports",
+      "type": "shell",
+      "command": "arduino-cli",
+      "args": [
+        "board",
+        "list"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "ZenTimer: Simulator Build",
+      "type": "shell",
+      "command": "sh",
+      "args": [
+        "${workspaceFolder}/simulator/build.sh"
+      ],
+      "problemMatcher": "$gcc"
+    },
+    {
+      "label": "ZenTimer: Simulator",
+      "type": "shell",
+      "command": "sh",
+      "args": [
+        "${workspaceFolder}/simulator/run.sh"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$gcc"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "serialPort",
+      "type": "promptString",
+      "description": "Aktueller USB-Port (mit USB Ports pruefen)",
+      "default": "/dev/cu.usbmodem2401"
+    }
+  ]
+}
